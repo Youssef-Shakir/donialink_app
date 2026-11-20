@@ -265,6 +265,12 @@
         pushSupported() {
             return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
         },
+        swReady(ms) {
+            // the service worker of the app; never waits forever (no https, blocked, still installing)
+            return Promise.race([navigator.serviceWorker.ready, new Promise((resolve, reject) => setTimeout(
+                () => reject(new Error(app.t('Notifications are not ready: reload the app (it needs a secure https address).'))),
+                ms || 6000))]);
+        },
         async pushState() {
             // 'on' | 'off' | 'blocked' | 'install' (iPhone: install first) | 'unsupported'
             if (isIOS && !standalone) {
@@ -276,7 +282,12 @@
             if (Notification.permission === 'denied') {
                 return 'blocked';
             }
-            const reg = await navigator.serviceWorker.ready;
+            let reg;
+            try {
+                reg = await app.swReady(4000);
+            } catch (e) {
+                return 'notready';
+            }
             const sub = await reg.pushManager.getSubscription();
             return sub && Notification.permission === 'granted' ? 'on' : 'off';
         },
@@ -284,7 +295,7 @@
             if (await Notification.requestPermission() !== 'granted') {
                 throw new Error(app.t('Notifications are blocked: allow them in the browser settings.'));
             }
-            const reg = await navigator.serviceWorker.ready;
+            const reg = await app.swReady();
             const key = app.session.push_key;
             let sub = await reg.pushManager.getSubscription();
             if (sub && sub.options && sub.options.applicationServerKey) {
@@ -306,7 +317,7 @@
             await app.rpc('push_test');
         },
         async pushOff() {
-            const reg = await navigator.serviceWorker.ready;
+            const reg = await app.swReady();
             const sub = await reg.pushManager.getSubscription();
             if (sub) {
                 await app.rpc('push_unsubscribe', { endpoint: sub.endpoint });
@@ -330,7 +341,7 @@
         async start() {
             app.el = document.getElementById('dl-app');
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/dl/app/sw.js', { scope: '/dl/app/' }).catch(() => {});
+                navigator.serviceWorker.register('/dl/app/sw.js', { scope: '/dl/app' }).catch(() => {});
                 navigator.serviceWorker.addEventListener('message', (event) => {
                     if (event.data && event.data.type === 'open' && event.data.url) {
                         const url = new URL(event.data.url, window.location.origin);

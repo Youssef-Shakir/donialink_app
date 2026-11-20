@@ -29,9 +29,9 @@ class TestAppHttp(HttpCase):
 
     def test_manifest_and_worker(self):
         manifest = self.url_open('/dl/app/manifest.webmanifest').json()
-        self.assertEqual(manifest['scope'], '/dl/app/')
+        self.assertEqual(manifest['scope'], '/dl/app')
         worker = self.url_open('/dl/app/sw.js')
-        self.assertEqual(worker.headers['Service-Worker-Allowed'], '/dl/app/')
+        self.assertEqual(worker.headers['Service-Worker-Allowed'], '/dl/app')
         self.assertNotIn('{{', worker.text)
 
     def test_inbox_read_and_kinds(self):

@@ -37,7 +37,8 @@
             'Account': 'الحساب', 'App version {0}': 'إصدار التطبيق {0}',
             'Nothing to receive yet.': 'لا يوجد ما يصلك بعد.',
             'Powered by DoniaLink': 'بواسطة دنيا لينك',
-            'Notifications on this phone': 'الإشعارات على هذا الهاتف', 'Change password': 'تغيير كلمة المرور',
+            'Notifications on this phone': 'الإشعارات على هذا الهاتف', 'Checking…': 'جارٍ التحقق…',
+            'Notifications are not ready: reload the app (it needs a secure https address).': 'الإشعارات غير جاهزة: أعد تحميل التطبيق (يحتاج عنواناً آمناً https).', 'Change password': 'تغيير كلمة المرور',
             'Current password': 'كلمة المرور الحالية', 'New password': 'كلمة المرور الجديدة',
             'New password again': 'أعد كلمة المرور الجديدة', 'The two new passwords are different.': 'كلمتا المرور الجديدتان غير متطابقتين.',
             'Password changed.': 'تم تغيير كلمة المرور.', 'At least 8 characters.': '8 أحرف على الأقل.',
@@ -290,8 +291,8 @@
             const s = app.session;
 
             const phone = h('section', { class: 'dl-card', id: 'notifications' }, [h('h2', {}, t('Notifications on this phone'))]);
-            const status = h('p', { class: 'dl-muted' });
-            const toggle = h('button', { class: 'dl-btn' });
+            const status = h('p', { class: 'dl-muted' }, t('Checking…'));
+            const toggle = h('button', { class: 'dl-btn' }, t('Turn on notifications'));
             phone.append(status, toggle);
             async function showPush() {
                 const state = await app.pushState().catch(() => 'unsupported');
@@ -299,10 +300,11 @@
                     on: 'Notifications are on for this phone.', off: 'Notifications are off for this phone.',
                     blocked: 'Notifications are blocked: allow them in the browser settings.',
                     install: 'Add the app to your Home Screen first to get notifications.',
+                    notready: 'Notifications are not ready: reload the app (it needs a secure https address).',
                     unsupported: 'This browser does not support notifications.',
                 };
                 status.textContent = t(words[state]);
-                toggle.hidden = !['on', 'off'].includes(state);
+                toggle.hidden = !['on', 'off', 'notready'].includes(state);
                 toggle.textContent = state === 'on' ? t('Turn off notifications') : t('Turn on notifications');
                 toggle.className = state === 'on' ? 'dl-btn ghost' : 'dl-btn';
                 toggle.onclick = async () => {

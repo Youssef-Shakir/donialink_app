@@ -98,7 +98,7 @@ class DonialinkApp(http.Controller):
             'description': _('Notifications, reports and your business on your phone.'),
             'id': APP,
             'start_url': APP,
-            'scope': APP + '/',
+            'scope': APP,
             'display': 'standalone',
             'orientation': 'portrait',
             'background_color': '#0a1622',
@@ -122,7 +122,7 @@ class DonialinkApp(http.Controller):
         return request.make_response(js, headers=[
             ('Content-Type', 'application/javascript; charset=utf-8'),
             ('Cache-Control', 'no-cache'),
-            ('Service-Worker-Allowed', APP + '/'),
+            ('Service-Worker-Allowed', APP),   # the app is /dl/app (no slash): the worker must cover it
         ])
 
     @http.route([APP + '/icon/<int:size>.png', APP + '/icon/maskable-<int:size>.png'], type='http', auth='public',
@@ -242,7 +242,8 @@ class DonialinkApp(http.Controller):
         today = fields.Datetime.to_datetime(fields.Date.context_today(user))
         tasks = self._tasks().search(['&', ('user_ids', 'in', user.id), '|', ('state', 'in', ('todo', 'progress')),
                                       '&', ('state', '=', 'done'), ('done_date', '>=', today)], limit=200)
-        return {'tasks': tasks._to_app()}
+        # found with the person's rights (record rules); read with sudo: names of the company, creator, people
+        return {'tasks': tasks.sudo()._to_app()}
 
     def _api_tasks_team(self, user_id=None, state=None):
         self._team_check()
@@ -253,7 +254,7 @@ class DonialinkApp(http.Controller):
                       else ('state', 'in', ('todo', 'progress')))
         people = request.env['donialink.app.admin'].sudo()._people().filtered(
             lambda u: u.active and u.company_ids & request.env.user.company_ids)
-        return {'tasks': self._tasks().search(domain, limit=300)._to_app(),
+        return {'tasks': self._tasks().search(domain, limit=300).sudo()._to_app(),
                 'people': [{'id': u.id, 'name': u.name} for u in people]}
 
     def _api_task(self, task_id):

@@ -158,3 +158,16 @@ class TestAppTask(HttpCase):
         # the creator and managers still edit
         task.with_user(self.boss).write({'priority': '2'})
         self.assertEqual(task.priority, '2')
+
+    def test_portal_staff_of_another_company(self):
+        """A portal person sees his tasks even when the task's company is not one he can read."""
+        other = self.env['res.company'].create({'name': 'DL Task Other Co'})
+        self.ali.company_ids |= other
+        task = self.Task.create({'name': 'Other shop', 'user_ids': [(6, 0, self.ali.ids)], 'company_id': other.id})
+        self.ali.write({'company_ids': [(6, 0, self.env.company.ids)], 'company_id': self.env.company.id})
+        self.authenticate('dl_task_ali', 'dl_task_ali1')
+        mine = self.api('tasks_mine')
+        self.assertNotIn('error', mine, mine.get('message'))
+        self.assertIn(task.id, [t['id'] for t in mine['tasks']])
+        self.assertEqual(next(t for t in mine['tasks'] if t['id'] == task.id)['company'], 'DL Task Other Co')
+        self.assertEqual(self.api('task', task_id=task.id)['task']['id'], task.id)
