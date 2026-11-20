@@ -10,8 +10,9 @@ import logging
 from pathlib import Path
 
 from odoo import _, fields, http
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessDenied, AccessError, UserError
 from odoo.http import request
+from odoo.service import security
 
 _logger = logging.getLogger(__name__)
 
@@ -199,6 +200,18 @@ class DonialinkApp(http.Controller):
             'push_key': request.env['mail.push.device'].sudo().get_web_push_vapid_public_key(),
             'summary': request.env['donialink.app.summary']._info(user),
         }
+
+    def _api_password(self, old, new):
+        """The person changes their own password (internal or portal); the session stays open."""
+        new = new or ''
+        if len(new) < 8:
+            raise UserError(_('The new password needs at least 8 characters.'))
+        try:
+            request.env['res.users'].change_password(old or '', new)
+        except AccessDenied:
+            raise UserError(_('The current password is wrong.')) from None
+        request.session.session_token = security.compute_session_token(request.session, request.env)
+        return {'ok': True}
 
     # business summary (donialink_agent's read tools; access checked in donialink.app.summary)
 

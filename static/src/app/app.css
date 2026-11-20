@@ -224,3 +224,5 @@ button, input { font: inherit; color: inherit; }
 details.dl-card > summary { cursor: pointer; font-weight: 600; }
 
 .dl-hero-logo { width: 44px; height: 44px; border-radius: 12px; object-fit: contain; background: #fff; flex: none; }
+.dl-icon-btn.attn { position: relative; }
+.dl-icon-btn.attn::after { content: ""; position: absolute; top: 6px; inset-inline-end: 6px; width: 9px; height: 9px; border-radius: 50%; background: var(--bad); box-shadow: 0 0 0 2px var(--surface); }

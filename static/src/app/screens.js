@@ -37,6 +37,10 @@
             'Account': 'الحساب', 'App version {0}': 'إصدار التطبيق {0}',
             'Nothing to receive yet.': 'لا يوجد ما يصلك بعد.',
             'Powered by DoniaLink': 'بواسطة دنيا لينك',
+            'Notifications on this phone': 'الإشعارات على هذا الهاتف', 'Change password': 'تغيير كلمة المرور',
+            'Current password': 'كلمة المرور الحالية', 'New password': 'كلمة المرور الجديدة',
+            'New password again': 'أعد كلمة المرور الجديدة', 'The two new passwords are different.': 'كلمتا المرور الجديدتان غير متطابقتين.',
+            'Password changed.': 'تم تغيير كلمة المرور.', 'At least 8 characters.': '8 أحرف على الأقل.',
         },
     });
 
@@ -56,8 +60,15 @@
 
     async function pushBanner(container) {
         const state = await app.pushState().catch(() => 'unsupported');
+        const gear = document.querySelector('.dl-hero a[href="#settings"]');
+        if (gear) {
+            gear.classList.toggle('attn', state === 'off');
+        }
         let dismissed = false;
-        try { dismissed = localStorage.getItem('dl-push-later') === '1'; } catch (e) { /* private mode */ }
+        try {
+            const later = parseInt(localStorage.getItem('dl-push-later') || '0', 10);
+            dismissed = later > 1 && Date.now() - later < 3 * 24 * 3600 * 1000;   // asks again after 3 days
+        } catch (e) { /* private mode */ }
         if (dismissed || !['off', 'install'].includes(state)) {
             return;
         }
@@ -80,7 +91,7 @@
                     } catch (e) { app.toast(e.message, 'bad'); }
                 } }, state === 'install' ? t('Install') : t('Turn on notifications')),
                 h('button', { class: 'dl-link', onclick: () => {
-                    try { localStorage.setItem('dl-push-later', '1'); } catch (e) { /* ignore */ }
+                    try { localStorage.setItem('dl-push-later', String(Date.now())); } catch (e) { /* ignore */ }
                     banner.remove();
                 } }, t('Later')),
             ]),
@@ -249,13 +260,36 @@
 
     // ------------------------------------------------------------------ settings
 
+    function passwordForm() {
+        const field = (ph, auto) => h('input', { class: 'dl-input', type: 'password', placeholder: t(ph), autocomplete: auto, required: true });
+        const old = field('Current password', 'current-password');
+        const pw = field('New password', 'new-password');
+        const again = field('New password again', 'new-password');
+        const form = h('form', { class: 'dl-form', hidden: true, onsubmit: async (ev) => {
+            ev.preventDefault();
+            if (pw.value !== again.value) {
+                return app.toast(t('The two new passwords are different.'), 'bad');
+            }
+            try {
+                await app.rpc('password', { old: old.value, new: pw.value });
+                app.toast(t('Password changed.'), 'ok');
+                form.reset();
+                form.hidden = true;
+                open.hidden = false;
+            } catch (e) { app.toast(e.message, 'bad'); }
+        } }, [old, pw, again, h('p', { class: 'dl-muted' }, t('At least 8 characters.')),
+            h('button', { class: 'dl-btn', type: 'submit' }, t('Change password'))]);
+        const open = h('button', { class: 'dl-btn ghost', type: 'button', onclick: () => { form.hidden = false; open.hidden = true; old.focus(); } }, t('Change password'));
+        return h('div', {}, [open, form]);
+    }
+
     app.screen('settings', {
         always: true,
         async render(el) {
             el.append(app.topbar(t('Settings'), true));
             const s = app.session;
 
-            const phone = h('section', { class: 'dl-card' }, [h('h2', {}, t('This phone'))]);
+            const phone = h('section', { class: 'dl-card', id: 'notifications' }, [h('h2', {}, t('Notifications on this phone'))]);
             const status = h('p', { class: 'dl-muted' });
             const toggle = h('button', { class: 'dl-btn' });
             phone.append(status, toggle);
@@ -329,6 +363,7 @@
                     h('img', { src: s.user.avatar, alt: '', class: 'dl-avatar' }),
                     h('div', {}, [h('b', {}, s.user.name), h('span', { class: 'dl-muted' }, s.user.company)]),
                 ]),
+                passwordForm(),
                 h('a', { class: 'dl-btn ghost', href: '/web/session/logout?redirect=/dl/app' }, t('Log out')),
                 h('p', { class: 'dl-footer' }, t('App version {0}', s.version)),
             ]));

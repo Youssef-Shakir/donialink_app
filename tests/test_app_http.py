@@ -99,3 +99,13 @@ class TestAppHttp(HttpCase):
         self.assertEqual(self.api('session')['logo'], '/dl/app/icon/192.png')
         company.logo = False
         self.assertEqual(self.url_open('/dl/app/icon/512.png').status_code, 200, 'falls back to the default icon')
+
+    def test_change_password(self):
+        """People change their own password in the app and stay logged in."""
+        self.authenticate('dl_http_other', 'dl_http_other1')
+        self.assertEqual(self.api('password', old='wrong-one', new='New-pass-123')['error'], 'refused')
+        self.assertEqual(self.api('password', old='dl_http_other1', new='short')['error'], 'refused')
+        self.assertTrue(self.api('password', old='dl_http_other1', new='New-pass-123')['ok'])
+        self.assertIn('unread', self.api('session'), 'the session stays open')
+        self.authenticate('dl_http_other', 'New-pass-123')
+        self.assertIn('unread', self.api('session'))
