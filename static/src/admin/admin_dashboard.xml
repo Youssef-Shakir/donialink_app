@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="donialink_app.AdminDashboard">
+        <div class="o_dl_admin">
+            <div t-if="!state.data" class="p-4 text-muted">Loading…</div>
+            <t t-else="">
+                <t t-set="d" t-value="state.data"/>
+                <header class="o_dl_admin_head">
+                    <h1>DoniaLink App</h1>
+                    <a class="btn btn-secondary" href="/dl/app" target="_blank"><i class="fa fa-mobile me-1"/>Open the app</a>
+                </header>
+
+                <!-- overview: built-in numbers + cards added by other modules -->
+                <section class="o_dl_cards">
+                    <div class="o_dl_card">
+                        <h3>People</h3>
+                        <div class="o_dl_big" t-esc="d.people.filter(p => p.active).length"/>
+                        <div class="text-muted"><t t-esc="d.activity.no_phone.length"/> without a phone connected</div>
+                    </div>
+                    <div class="o_dl_card">
+                        <h3>Messages</h3>
+                        <div class="o_dl_big" t-esc="d.activity.today"/>
+                        <div class="text-muted">today · <t t-esc="d.activity.week"/> this week</div>
+                    </div>
+                    <t t-foreach="d.sections" t-as="section" t-key="section.key">
+                        <t t-set="Comp" t-value="sectionComponent(section)"/>
+                        <t t-if="Comp" t-component="Comp" section="section" reload.bind="load"/>
+                        <div t-else="" class="o_dl_card">
+                            <h3 t-esc="section.title"/>
+                            <div t-foreach="section.numbers or []" t-as="n" t-key="n_index" class="o_dl_num_row">
+                                <span t-esc="n.label"/>
+                                <b t-att-class="n.warn and n.value ? 'text-danger' : ''" t-esc="n.value"/>
+                            </div>
+                            <button t-if="section.action" class="btn btn-link px-0" t-on-click="() => this.openAction(section.action)">
+                                <t t-esc="section.button or 'Open'"/> ›
+                            </button>
+                        </div>
+                    </t>
+                </section>
+
+                <nav class="o_dl_tabs">
+                    <button t-foreach="tabs" t-as="tab" t-key="tab[0]" t-att-class="state.tab === tab[0] ? 'active' : ''"
+                            t-on-click="() => state.tab = tab[0]" t-esc="tab[1]"/>
+                </nav>
+
+                <!-- a: people -->
+                <section t-if="state.tab === 'people'" class="o_dl_panel">
+                    <div t-if="state.password" class="alert alert-success d-flex justify-content-between align-items-center">
+                        <span>New password of <b t-esc="state.password.name"/> (<t t-esc="state.password.login"/>): <code class="fs-5" t-esc="state.password.password"/> - share it now, it is not shown again.</span>
+                        <button class="btn btn-sm btn-link" t-on-click="() => state.password = null">Close</button>
+                    </div>
+                    <input class="form-control mb-2" placeholder="Search a name or login" t-model="state.search"/>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead><tr><th>Person</th><th>Roles</th><th>Type</th><th>Companies</th><th>Phone</th><th>Last in the app</th><th>Unread</th><th/></tr></thead>
+                            <tbody>
+                                <tr t-foreach="people" t-as="p" t-key="p.id" t-att-class="p.active ? '' : 'text-muted'">
+                                    <td><b t-esc="p.name"/><div class="small text-muted" t-esc="p.login"/></td>
+                                    <td>
+                                        <t t-if="state.editRoles and state.editRoles.id === p.id">
+                                            <label t-foreach="d.roles" t-as="r" t-key="r.id" class="me-2 small">
+                                                <input type="checkbox" t-att-checked="state.editRoles.roles.includes(r.id)"
+                                                       t-on-change="() => this.toggleIn(state.editRoles.roles, r.id)"/> <t t-esc="r.name"/>
+                                            </label>
+                                            <button class="btn btn-sm btn-primary" t-on-click="saveRoles">Save</button>
+                                        </t>
+                                        <t t-else="">
+                                            <span t-foreach="p.roles" t-as="rid" t-key="rid" class="badge text-bg-light me-1" t-esc="roleName(rid)"/>
+                                            <button class="btn btn-sm btn-link px-1" t-on-click="() => this.editRoles(p)">Change</button>
+                                        </t>
+                                    </td>
+                                    <td><span t-att-class="'badge ' + (p.type === 'internal' ? 'text-bg-info' : 'text-bg-secondary')" t-esc="p.type === 'internal' ? 'Internal' : 'Portal'"/></td>
+                                    <td class="small" t-esc="p.companies.join(', ')"/>
+                                    <td><t t-if="p.phones"><i class="fa fa-check text-success"/> <t t-esc="p.phones"/></t><span t-else="" class="text-muted">No</span></td>
+                                    <td class="small" t-esc="lastSeen(p.last_seen)"/>
+                                    <td t-esc="p.unread"/>
+                                    <td class="text-nowrap">
+                                        <button class="btn btn-sm btn-link" t-on-click="() => this.sendTest(p)" title="Send a test">Test</button>
+                                        <button class="btn btn-sm btn-link" t-on-click="() => this.openUser(p.id)">Open</button>
+                                        <button class="btn btn-sm btn-link" t-on-click="() => this.resetPassword(p)">Password</button>
+                                        <button t-if="p.active" class="btn btn-sm btn-link text-danger" t-on-click="() => this.setActive(p, false)">Archive</button>
+                                        <button t-else="" class="btn btn-sm btn-link" t-on-click="() => this.setActive(p, true)">Restore</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- b: create a user -->
+                <section t-if="state.tab === 'create'" class="o_dl_panel">
+                    <div t-if="state.created" class="alert alert-success">
+                        <b t-esc="state.created.name"/> can log in to the app with <code t-esc="state.created.login"/>
+                        <t t-if="state.created.password"> and the password <code class="fs-5" t-esc="state.created.password"/> - share it now, it is not shown again</t>.
+                        (<t t-esc="state.created.type === 'internal' ? 'Internal user' : 'Portal user, free'"/>)
+                    </div>
+                    <form class="o_dl_form" t-on-submit="createUser">
+                        <label>Name<input class="form-control" required="1" t-model="state.form.name"/></label>
+                        <label>Phone or login<input class="form-control" required="1" t-model="state.form.login"/></label>
+                        <label>Password <span class="text-muted small">(empty: generated and shown once)</span><input class="form-control" t-model="state.form.password"/></label>
+                        <fieldset>
+                            <legend>Role</legend>
+                            <label t-foreach="d.roles" t-as="r" t-key="r.id" class="o_dl_choice">
+                                <input type="checkbox" t-att-checked="state.form.roles.includes(r.id)" t-on-change="() => this.toggleIn(state.form.roles, r.id)"/>
+                                <b t-esc="r.name"/> <span class="text-muted small"><t t-esc="r.type === 'internal' ? 'Internal' : 'Portal, free'"/><t t-if="r.description"> · <t t-esc="r.description"/></t></span>
+                            </label>
+                        </fieldset>
+                        <fieldset t-if="d.companies.length > 1">
+                            <legend>Companies</legend>
+                            <label t-foreach="d.companies" t-as="c" t-key="c.id" class="me-3">
+                                <input type="checkbox" t-att-checked="state.form.companies.includes(c.id)" t-on-change="() => this.toggleIn(state.form.companies, c.id)"/> <t t-esc="c.name"/>
+                            </label>
+                        </fieldset>
+                        <button class="btn btn-primary" type="submit">Create</button>
+                    </form>
+                </section>
+
+                <!-- c: who receives what -->
+                <section t-if="state.tab === 'receives'" class="o_dl_panel table-responsive">
+                    <table class="table table-sm align-middle o_dl_matrix">
+                        <thead><tr><th>Notification</th><th t-foreach="d.roles" t-as="r" t-key="r.id" class="text-center" t-esc="r.name"/><th>Groups</th><th>People</th><th>Push</th><th/></tr></thead>
+                        <tbody>
+                            <tr t-foreach="d.kinds" t-as="k" t-key="k.id" t-att-class="k.active ? '' : 'text-muted'">
+                                <td><b t-esc="k.name"/><div class="small text-muted" t-esc="k.code"/></td>
+                                <td t-foreach="d.roles" t-as="r" t-key="r.id" class="text-center">
+                                    <input type="checkbox" t-att-checked="k.roles.includes(r.id)" t-on-change="(ev) => this.toggleKind(k, 'role', r.id, ev.target.checked)"/>
+                                </td>
+                                <td>
+                                    <span t-foreach="k.groups" t-as="gid" t-key="gid" class="badge text-bg-light me-1"><t t-esc="groupName(gid)"/> <a href="#" t-on-click.prevent="() => this.toggleKind(k, 'group', gid, false)">×</a></span>
+                                    <select class="form-select form-select-sm o_dl_add" t-on-change="(ev) => this.addFromSelect(ev, this.toggleKind, k, 'group')">
+                                        <option value="">+ group</option>
+                                        <option t-foreach="d.groups" t-as="g" t-key="g.id" t-att-value="g.id" t-esc="g.name"/>
+                                    </select>
+                                </td>
+                                <td>
+                                    <span t-foreach="k.users" t-as="uid" t-key="uid" class="badge text-bg-light me-1"><t t-esc="personName(uid)"/> <a href="#" t-on-click.prevent="() => this.toggleKind(k, 'user', uid, false)">×</a></span>
+                                    <select class="form-select form-select-sm o_dl_add" t-on-change="(ev) => this.addFromSelect(ev, this.toggleKind, k, 'user')">
+                                        <option value="">+ person</option>
+                                        <option t-foreach="d.people" t-as="p" t-key="p.id" t-att-value="p.id" t-esc="p.name"/>
+                                    </select>
+                                </td>
+                                <td><input type="checkbox" t-att-checked="k.push" t-on-change="(ev) => this.setPush(k, ev.target.checked)"/></td>
+                                <td><button class="btn btn-sm btn-link" t-on-click="() => this.testKind(k)">Test</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- d: who sees what -->
+                <section t-if="state.tab === 'sees'" class="o_dl_panel table-responsive">
+                    <p class="text-muted">A screen without groups or people is open to everyone; roles, groups and people open the others.</p>
+                    <table class="table table-sm align-middle o_dl_matrix">
+                        <thead><tr><th>Screen</th><th t-foreach="d.roles" t-as="r" t-key="r.id" class="text-center" t-esc="r.name"/><th>Groups</th><th>People</th></tr></thead>
+                        <tbody>
+                            <tr t-foreach="d.screens" t-as="s" t-key="s.id">
+                                <td><b t-esc="s.name"/><div t-if="s.open" class="small text-success">Everyone</div></td>
+                                <td t-foreach="d.roles" t-as="r" t-key="r.id" class="text-center">
+                                    <input type="checkbox" t-att-checked="s.roles.includes(r.id)" t-on-change="(ev) => this.toggleScreen(s, 'role', r.id, ev.target.checked)"/>
+                                </td>
+                                <td>
+                                    <span t-foreach="s.groups" t-as="gid" t-key="gid" class="badge text-bg-light me-1"><t t-esc="groupName(gid)"/> <a href="#" t-on-click.prevent="() => this.toggleScreen(s, 'group', gid, false)">×</a></span>
+                                    <select class="form-select form-select-sm o_dl_add" t-on-change="(ev) => this.addFromSelect(ev, this.toggleScreen, s, 'group')">
+                                        <option value="">+ group</option>
+                                        <option t-foreach="d.groups" t-as="g" t-key="g.id" t-att-value="g.id" t-esc="g.name"/>
+                                    </select>
+                                </td>
+                                <td>
+                                    <span t-foreach="s.users" t-as="uid" t-key="uid" class="badge text-bg-light me-1"><t t-esc="personName(uid)"/> <a href="#" t-on-click.prevent="() => this.toggleScreen(s, 'user', uid, false)">×</a></span>
+                                    <select class="form-select form-select-sm o_dl_add" t-on-change="(ev) => this.addFromSelect(ev, this.toggleScreen, s, 'user')">
+                                        <option value="">+ person</option>
+                                        <option t-foreach="d.people" t-as="p" t-key="p.id" t-att-value="p.id" t-esc="p.name"/>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- e: activity -->
+                <section t-if="state.tab === 'activity'" class="o_dl_panel">
+                    <div class="o_dl_cards">
+                        <div class="o_dl_card"><h3>Today</h3><div class="o_dl_big" t-esc="d.activity.today"/></div>
+                        <div class="o_dl_card"><h3>This week</h3><div class="o_dl_big" t-esc="d.activity.week"/></div>
+                        <div class="o_dl_card"><h3>Pushes (week)</h3><div class="o_dl_big" t-esc="d.activity.pushes"/></div>
+                        <div class="o_dl_card"><h3>Not pushed (week)</h3><div class="o_dl_big" t-esc="d.activity.not_pushed"/><div class="small text-muted">no phone connected, or push off</div></div>
+                    </div>
+                    <table class="table table-sm">
+                        <thead><tr><th>Notification</th><th>Today</th><th>This week</th><th>Not pushed</th></tr></thead>
+                        <tbody><tr t-foreach="d.activity.kinds" t-as="k" t-key="k_index"><td t-esc="k.kind"/><td t-esc="k.today"/><td t-esc="k.week"/><td t-esc="k.not_pushed"/></tr></tbody>
+                    </table>
+                    <h3 class="h6">No phone connected</h3>
+                    <p><span t-foreach="d.activity.no_phone" t-as="p" t-key="p.id" class="badge text-bg-warning me-1" t-esc="p.name"/></p>
+                </section>
+
+                <!-- f: broadcast -->
+                <section t-if="state.tab === 'broadcast'" class="o_dl_panel">
+                    <form class="o_dl_form" t-on-submit="sendBroadcast">
+                        <label>Title<input class="form-control" required="1" t-model="state.broadcast.title"/></label>
+                        <label>Message<textarea class="form-control" rows="4" t-model="state.broadcast.body"/></label>
+                        <fieldset>
+                            <legend>To</legend>
+                            <label t-foreach="d.roles" t-as="r" t-key="r.id" class="me-3">
+                                <input type="checkbox" t-att-checked="state.broadcast.roles.includes(r.id)" t-on-change="() => this.toggleIn(state.broadcast.roles, r.id)"/> <t t-esc="r.name"/>
+                            </label>
+                            <div class="mt-2">
+                                <span t-foreach="state.broadcast.users" t-as="uid" t-key="uid" class="badge text-bg-light me-1"><t t-esc="personName(uid)"/> <a href="#" t-on-click.prevent="() => this.toggleIn(state.broadcast.users, uid)">×</a></span>
+                                <select class="form-select form-select-sm o_dl_add" t-on-change="(ev) => this.addTo(ev, state.broadcast.users)">
+                                    <option value="">+ person</option>
+                                    <option t-foreach="d.people" t-as="p" t-key="p.id" t-att-value="p.id" t-esc="p.name"/>
+                                </select>
+                                <select class="form-select form-select-sm o_dl_add ms-2" t-on-change="(ev) => this.addTo(ev, state.broadcast.groups)">
+                                    <option value="">+ group</option>
+                                    <option t-foreach="d.groups" t-as="g" t-key="g.id" t-att-value="g.id" t-esc="g.name"/>
+                                </select>
+                                <span t-foreach="state.broadcast.groups" t-as="gid" t-key="gid" class="badge text-bg-light ms-1"><t t-esc="groupName(gid)"/> <a href="#" t-on-click.prevent="() => this.toggleIn(state.broadcast.groups, gid)">×</a></span>
+                            </div>
+                        </fieldset>
+                        <button class="btn btn-primary" type="submit">Send</button>
+                    </form>
+                </section>
+            </t>
+        </div>
+    </t>
+</templates>

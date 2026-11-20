@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Preset roles; other modules add roles or extend these with data XML
+         (e.g. <record id="donialink_app.role_owner" model="donialink.app.role"><field name="screen_ids" eval="[(4, ref('my_screen'))]"/></record>) -->
+    <record id="role_owner" model="donialink.app.role">
+        <field name="name">Owner</field>
+        <field name="description">The business owner: summary with profit and bills, reports</field>
+        <field name="sequence">1</field>
+        <field name="user_type">portal</field>
+        <field name="group_ids" eval="[(6, 0, [ref('group_finance')])]"/>
+        <field name="kind_ids" eval="[(6, 0, [ref('kind_report'), ref('kind_general')])]"/>
+    </record>
+    <record id="role_manager" model="donialink.app.role">
+        <field name="name">Manager</field>
+        <field name="description">Runs the business in Odoo and the app: summary with finance, reports</field>
+        <field name="sequence">2</field>
+        <field name="user_type">internal</field>
+        <field name="group_ids" eval="[(6, 0, [ref('group_finance')])]"/>
+        <field name="kind_ids" eval="[(6, 0, [ref('kind_report'), ref('kind_general')])]"/>
+    </record>
+    <record id="role_accountant" model="donialink.app.role">
+        <field name="name">Accountant</field>
+        <field name="description">Works in Odoo; sees the finance summary and receives the reports</field>
+        <field name="sequence">3</field>
+        <field name="user_type">internal</field>
+        <field name="group_ids" eval="[(6, 0, [ref('group_finance')])]"/>
+        <field name="kind_ids" eval="[(6, 0, [ref('kind_report'), ref('kind_general')])]"/>
+    </record>
+    <record id="role_staff" model="donialink.app.role">
+        <field name="name">Staff / Cashier</field>
+        <field name="description">Uses the app only (free): messages from the business</field>
+        <field name="sequence">4</field>
+        <field name="user_type">portal</field>
+        <field name="is_default">True</field>
+        <field name="kind_ids" eval="[(6, 0, [ref('kind_general')])]"/>
+    </record>
+</odoo>

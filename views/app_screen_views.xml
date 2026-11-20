@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_app_screen_list" model="ir.ui.view">
+        <field name="name">donialink.app.screen.list</field>
+        <field name="model">donialink.app.screen</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="key"/>
+                <field name="description"/>
+                <field name="icon"/>
+                <field name="url"/>
+                <field name="group_ids" widget="many2many_tags"/>
+                <field name="on_home"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_app_screen" model="ir.actions.act_window">
+        <field name="name">Screens</field>
+        <field name="res_model">donialink.app.screen</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'active_test': False}</field>
+    </record>
+
+    <!-- people: a test notification from the user form -->
+    <record id="view_users_form_dl_app" model="ir.ui.view">
+        <field name="name">res.users.form.donialink.app</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_dl_app_test" type="object" class="oe_stat_button" icon="fa-mobile"
+                        groups="donialink_app.group_app_manager">
+                    <field name="dl_app_phone_count" widget="statinfo" string="App Phones"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,19 @@
+.o_dl_admin {
+    padding: 16px 24px; overflow: auto; height: 100%; background: var(--o-view-background-color, #fff);
+    .o_dl_admin_head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px;
+        h1 { margin: 0; font-size: 1.5rem; } }
+    .o_dl_cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .o_dl_card { border: 1px solid var(--border-color, #dee2e6); border-radius: 12px; padding: 12px 14px;
+        h3 { font-size: .95rem; margin: 0 0 6px; color: #5b6d7d; } }
+    .o_dl_big { font-size: 1.8rem; font-weight: 600; }
+    .o_dl_num_row { display: flex; justify-content: space-between; gap: 8px; }
+    .o_dl_tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--border-color, #dee2e6); margin-bottom: 12px;
+        button { border: 0; background: none; padding: 8px 12px; border-bottom: 2px solid transparent; }
+        button.active { border-bottom-color: #0e3f64; font-weight: 600; } }
+    .o_dl_form { display: flex; flex-direction: column; gap: 10px; max-width: 560px;
+        label { display: flex; flex-direction: column; gap: 4px; } legend { font-size: 1rem; }
+        .o_dl_choice { flex-direction: row; align-items: baseline; gap: 6px; } }
+    .o_dl_add { display: inline-block; width: auto; max-width: 180px; }
+    .o_dl_matrix th, .o_dl_matrix td { white-space: nowrap; }
+}
+@media (max-width: 767px) { .o_dl_admin { padding: 10px; } }

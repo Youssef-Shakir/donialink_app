@@ -1,0 +1,17 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_app_message_user,app.message.user,model_donialink_app_message,base.group_user,1,1,0,0
+access_app_message_portal,app.message.portal,model_donialink_app_message,base.group_portal,1,1,0,0
+access_app_message_manager,app.message.manager,model_donialink_app_message,group_app_manager,1,1,1,1
+access_app_kind_user,app.kind.user,model_donialink_app_kind,base.group_user,1,0,0,0
+access_app_kind_manager,app.kind.manager,model_donialink_app_kind,group_app_manager,1,1,1,1
+access_app_screen_user,app.screen.user,model_donialink_app_screen,base.group_user,1,0,0,0
+access_app_screen_manager,app.screen.manager,model_donialink_app_screen,group_app_manager,1,1,1,1
+access_app_role_user,app.role.user,model_donialink_app_role,base.group_user,1,0,0,0
+access_app_role_portal,app.role.portal,model_donialink_app_role,base.group_portal,1,0,0,0
+access_app_role_manager,app.role.manager,model_donialink_app_role,group_app_manager,1,1,1,1
+access_app_task_user,app.task.user,model_donialink_app_task,base.group_user,1,1,1,0
+access_app_task_portal,app.task.portal,model_donialink_app_task,base.group_portal,1,1,0,0
+access_app_task_manager,app.task.manager,model_donialink_app_task,group_task_manager,1,1,1,1
+access_app_task_line_user,app.task.line.user,model_donialink_app_task_line,base.group_user,1,1,1,1
+access_app_task_line_portal,app.task.line.portal,model_donialink_app_task_line,base.group_portal,1,1,0,0
+access_app_task_line_manager,app.task.line.manager,model_donialink_app_task_line,group_task_manager,1,1,1,1

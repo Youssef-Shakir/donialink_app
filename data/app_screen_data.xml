@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="screen_inbox" model="donialink.app.screen">
+        <field name="key">inbox</field>
+        <field name="name">Notifications</field>
+        <field name="description">Messages and reports</field>
+        <field name="icon">bell</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="screen_reports" model="donialink.app.screen">
+        <field name="key">reports</field>
+        <field name="name">Reports</field>
+        <field name="description">Files sent to you</field>
+        <field name="icon">report</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="screen_summary" model="donialink.app.screen">
+        <field name="key">summary</field>
+        <field name="name">Business summary</field>
+        <field name="description">Sales, expenses and more, live</field>
+        <field name="icon">chart</field>
+        <field name="sequence">3</field>
+        <field name="requires_model">donialink.agent.tools</field>
+        <field name="group_ids" eval="[(6, 0, [ref('donialink_app.group_summary')])]"/>
+    </record>
+    <record id="screen_odoo" model="donialink.app.screen">
+        <field name="key">odoo</field>
+        <field name="name">Open Odoo</field>
+        <field name="description">The full system</field>
+        <field name="icon">odoo</field>
+        <field name="sequence">90</field>
+        <field name="url">/odoo</field>
+        <field name="group_ids" eval="[(6, 0, [ref('base.group_user')])]"/>
+    </record>
+</odoo>

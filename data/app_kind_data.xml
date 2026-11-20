@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="kind_general" model="donialink.app.kind">
+        <field name="code">general</field>
+        <field name="name">General</field>
+        <field name="description">Messages from the business to you</field>
+        <field name="icon">bell</field>
+        <field name="sequence">1</field>
+        <field name="user_can_mute">False</field>
+    </record>
+    <record id="kind_report" model="donialink.app.kind">
+        <field name="code">report</field>
+        <field name="name">Reports from DoniaLink</field>
+        <field name="description">Weekly and monthly reports your accountant prepares</field>
+        <field name="icon">report</field>
+        <field name="sequence">2</field>
+    </record>
+</odoo>

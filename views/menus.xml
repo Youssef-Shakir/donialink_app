@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_open_app" model="ir.actions.act_url">
+        <field name="name">Open the App</field>
+        <field name="url">/dl/app</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_root" name="DoniaLink App" sequence="95" groups="group_app_manager"
+              web_icon="donialink_app,static/description/icon.png"/>
+    <menuitem id="menu_admin" name="Dashboard" parent="menu_root" action="action_app_admin" sequence="0"/>
+    <menuitem id="menu_messages" name="Messages" parent="menu_root" action="action_app_message" sequence="1"/>
+    <menuitem id="menu_tasks" name="Tasks" parent="menu_root" action="action_app_task" sequence="2"/>
+    <menuitem id="menu_config" name="Configuration" parent="menu_root" sequence="50"/>
+    <menuitem id="menu_kinds" name="Notification Kinds" parent="menu_config" action="action_app_kind" sequence="1"/>
+    <menuitem id="menu_screens" name="Screens" parent="menu_config" action="action_app_screen" sequence="2"/>
+    <menuitem id="menu_roles" name="Roles" parent="menu_config" action="action_app_role" sequence="0"/>
+    <menuitem id="menu_open_app" name="Open the App" parent="menu_root" action="action_open_app" sequence="99"/>
+</odoo>

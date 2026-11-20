@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_app_kind_list" model="ir.ui.view">
+        <field name="name">donialink.app.kind.list</field>
+        <field name="model">donialink.app.kind</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="recipient_ids" widget="many2many_tags"/>
+                <field name="push"/>
+                <field name="message_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_app_kind_form" model="ir.ui.view">
+        <field name="name">donialink.app.kind.form</field>
+        <field name="model">donialink.app.kind</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_messages" type="object" class="oe_stat_button" icon="fa-bell">
+                            <field name="message_count" widget="statinfo" string="Messages"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="description"/>
+                            <field name="icon"/>
+                        </group>
+                        <group>
+                            <field name="push"/>
+                            <field name="user_can_mute"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Recipients" name="recipients">
+                            <field name="recipient_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="login"/>
+                                    <field name="share" string="Portal"/>
+                                    <field name="dl_app_phone_count" string="Phones"/>
+                                    <button name="action_dl_app_test" type="object" string="Test" icon="fa-paper-plane"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Switched Off By" name="muted">
+                            <field name="muted_user_ids">
+                                <list><field name="name"/><field name="login"/></list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_app_kind" model="ir.actions.act_window">
+        <field name="name">Notification Kinds</field>
+        <field name="res_model">donialink.app.kind</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

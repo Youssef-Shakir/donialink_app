@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- the phone app's single page; the screens are drawn by donialink_app.assets_app -->
+    <template id="app_page" name="DoniaLink App">
+        &lt;!DOCTYPE html&gt;
+        <html t-att-lang="app_lang" t-att-dir="direction">
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+                <meta name="theme-color" content="#0e3f64"/>
+                <meta name="apple-mobile-web-app-capable" content="yes"/>
+                <meta name="mobile-web-app-capable" content="yes"/>
+                <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+                <meta name="apple-mobile-web-app-title" t-att-content="app_name"/>
+                <meta name="robots" content="noindex"/>
+                <title t-esc="app_name"/>
+                <link rel="manifest" href="/dl/app/manifest.webmanifest"/>
+                <link rel="icon" type="image/png" t-attf-href="{{ img }}/favicon-32.png"/>
+                <link rel="apple-touch-icon" t-attf-href="{{ img }}/icon-180.png"/>
+                <t t-call-assets="donialink_app.assets_app" t-js="false"/>
+            </head>
+            <body t-att-data-version="version" t-att-data-csrf="request.csrf_token()">
+                <div id="dl-offline" class="dl-offline" hidden="hidden"/>
+                <main id="dl-app" aria-live="polite"><div class="dl-splash"><div class="dl-spinner"/></div></main>
+                <div id="dl-toast" class="dl-toast" role="status" hidden="hidden"/>
+                <t t-call-assets="donialink_app.assets_app" t-css="false"/>
+            </body>
+        </html>
+    </template>
+</odoo>

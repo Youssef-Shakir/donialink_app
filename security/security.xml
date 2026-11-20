@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_donialink_app" model="ir.module.category">
+        <field name="name">DoniaLink App</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="group_app_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="category_id" ref="module_category_donialink_app"/>
+        <field name="comment">Chooses who receives each kind of notification, manages the app's screens and sees
+            every message.</field>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+    <record id="group_summary" model="res.groups">
+        <field name="name">See business summary</field>
+        <field name="category_id" ref="module_category_donialink_app"/>
+        <field name="comment">Sales, expenses, cash differences and stock to order of their companies, in the app.</field>
+    </record>
+    <record id="group_finance" model="res.groups">
+        <field name="name">See finance (profit, bills)</field>
+        <field name="category_id" ref="module_category_donialink_app"/>
+        <field name="implied_ids" eval="[(4, ref('group_summary'))]"/>
+        <field name="comment">Also the profit and loss and the bills to pay in the app's summary.</field>
+        <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+    </record>
+
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_app_manager'))]"/>
+    </record>
+
+    <!-- people see only their own messages; managers see all -->
+    <record id="rule_app_message_own" model="ir.rule">
+        <field name="name">DoniaLink App: own messages</field>
+        <field name="model_id" ref="model_donialink_app_message"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user')), (4, ref('base.group_portal'))]"/>
+    </record>
+    <record id="rule_app_message_manager" model="ir.rule">
+        <field name="name">DoniaLink App: all messages (managers)</field>
+        <field name="model_id" ref="model_donialink_app_message"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_app_manager'))]"/>
+    </record>
+</odoo>

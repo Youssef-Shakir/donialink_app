@@ -1,0 +1,812 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* donialink_app
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0-20251106\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-19 14:54+0000\n"
+"PO-Revision-Date: 2026-11-19 14:54+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/models/app_message.py:0
+msgid "A DoniaLink App message needs a title."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.constraint,message:donialink_app.constraint_donialink_app_kind_code_unique
+msgid "A notification kind with this code already exists."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.constraint,message:donialink_app.constraint_donialink_app_screen_key_unique
+msgid "A screen with this key already exists."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__active
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__active
+msgid "Active"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_res_users__dl_app_message_ids
+msgid "App Messages"
+msgstr ""
+
+#. module: donialink_app
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_users_form_dl_app
+msgid "App Phones"
+msgstr ""
+
+#. module: donialink_app
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_kind_form
+msgid "Archived"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__badge_method
+msgid "Badge Method"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__badge_model
+msgid "Badge Model"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__body
+msgid "Body"
+msgstr ""
+
+#. module: donialink_app
+#: model:res.groups,comment:donialink_app.group_app_manager
+msgid ""
+"Chooses who receives each kind of notification, manages the app's screens and sees\n"
+"            every message."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__code
+msgid "Code"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__company_id
+msgid "Company"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.ui.menu,name:donialink_app.menu_config
+msgid "Configuration"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__create_uid
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__create_uid
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__create_date
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__create_date
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__data
+msgid "Data"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__description
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__description
+msgid "Description"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__display_name
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__display_name
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.module.category,name:donialink_app.module_category_donialink_app
+#: model:ir.ui.menu,name:donialink_app.menu_root
+msgid "DoniaLink App"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model,name:donialink_app.model_donialink_app_message
+msgid "DoniaLink App: Message"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model,name:donialink_app.model_donialink_app_kind
+msgid "DoniaLink App: Notification Kind"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model,name:donialink_app.model_donialink_app_screen
+msgid "DoniaLink App: Screen"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.actions.server,name:donialink_app.cron_app_message_cleanup_ir_actions_server
+msgid "DoniaLink App: forget old read messages"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_screen__group_ids
+msgid ""
+"Empty: everyone who uses the app. Otherwise only members of these groups."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_message__data
+msgid "Extra values for the screen that opens it."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__attachment_id
+msgid "File"
+msgstr ""
+
+#. module: donialink_app
+#: model:donialink.app.screen,description:donialink_app.screen_reports
+msgid "Files sent to you"
+msgstr "ملفات مرسلة إليك"
+
+#. module: donialink_app
+#: model:donialink.app.kind,name:donialink_app.kind_general
+msgid "General"
+msgstr "عام"
+
+#. module: donialink_app
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_message_search
+msgid "Group By"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__id
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__id
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__id
+msgid "ID"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__icon
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__icon
+msgid "Icon"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_kind__icon
+msgid ""
+"Icon name in the app (bell, report, cash, receipt, chart, alert, box, card, "
+"info)."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__key
+msgid "Key"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__kind_id
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_message_search
+msgid "Kind"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__kind_code
+msgid "Kind Code"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__write_uid
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__write_uid
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__write_date
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__write_date
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__url
+msgid "Link"
+msgstr ""
+
+#. module: donialink_app
+#: model:res.groups,name:donialink_app.group_app_manager
+msgid "Manager"
+msgstr ""
+
+#. module: donialink_app
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_message_form
+msgid "Mark Read"
+msgstr ""
+
+#. module: donialink_app
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_message_form
+msgid "Mark Unread"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__message_count
+msgid "Message Count"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.actions.act_window,name:donialink_app.action_app_message
+#: model:ir.ui.menu,name:donialink_app.menu_messages
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_kind_form
+msgid "Messages"
+msgstr ""
+
+#. module: donialink_app
+#: model:donialink.app.screen,description:donialink_app.screen_inbox
+msgid "Messages and reports"
+msgstr "الرسائل والتقارير"
+
+#. module: donialink_app
+#: model:donialink.app.kind,description:donialink_app.kind_general
+msgid "Messages from the business to you"
+msgstr "رسائل من الإدارة إليك"
+
+#. module: donialink_app
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_screen__badge_method
+msgid ""
+"Method of the badge model named dl_app_…, called as the user with no "
+"arguments, returning a number (0: no badge)."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_screen__badge_model
+msgid "Model whose method gives the number shown on the tile."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__name
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__name
+msgid "Name"
+msgstr ""
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/models/app_message.py:0
+msgid "Name the people to send to, or a kind that has recipients."
+msgstr ""
+
+#. module: donialink_app
+#: model_terms:ir.actions.act_window,help:donialink_app.action_app_message
+msgid "No message sent to the app yet"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.actions.act_window,name:donialink_app.action_app_kind
+#: model:ir.ui.menu,name:donialink_app.menu_kinds
+msgid "Notification Kinds"
+msgstr ""
+
+#. module: donialink_app
+#: model:donialink.app.screen,name:donialink_app.screen_inbox
+msgid "Notifications"
+msgstr "الإشعارات"
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/controllers/main.py:0
+msgid "Notifications are on"
+msgstr ""
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/models/res_users.py:0
+msgid "Notifications from %s reach this phone."
+msgstr ""
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/controllers/main.py:0
+msgid "Notifications, reports and your business on your phone."
+msgstr ""
+
+#. module: donialink_app
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_message_form
+msgid "Notify Phones Again"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_kind__push
+msgid "Off: the message only goes to the inbox, without a phone notification."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__group_ids
+msgid "Only For"
+msgstr ""
+
+#. module: donialink_app
+#: model:donialink.app.screen,name:donialink_app.screen_odoo
+msgid "Open Odoo"
+msgstr "فتح أودو"
+
+#. module: donialink_app
+#: model:ir.actions.act_url,name:donialink_app.action_open_app
+#: model:ir.ui.menu,name:donialink_app.menu_open_app
+msgid "Open the App"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__url
+msgid "Opens"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_screen__url
+msgid ""
+"Opens this address instead of an app screen, e.g. /odoo for the full Odoo."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__origin
+msgid "Origin"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__user_can_mute
+msgid "People Can Switch It Off"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_kind__muted_user_ids
+msgid "People who switched this kind off in the app."
+msgstr ""
+
+#. module: donialink_app
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_message_search
+msgid "Person"
+msgstr ""
+
+#. module: donialink_app
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_kind_form
+msgid "Phones"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__pushed
+msgid "Phones Notified"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_res_users__dl_app_phone_count
+msgid "Phones with App Notifications"
+msgstr ""
+
+#. module: donialink_app
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_kind_form
+msgid "Portal"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__preview
+msgid "Preview"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__push
+msgid "Push to Phones"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__is_read
+msgid "Read"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__read_date
+msgid "Read Date"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__recipient_ids
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_kind_form
+msgid "Recipients"
+msgstr ""
+
+#. module: donialink_app
+#: model:donialink.app.screen,name:donialink_app.screen_reports
+msgid "Reports"
+msgstr "التقارير"
+
+#. module: donialink_app
+#: model:donialink.app.kind,name:donialink_app.kind_report
+msgid "Reports from DoniaLink"
+msgstr "تقارير من دنيا لينك"
+
+#. module: donialink_app
+#: model_terms:ir.actions.act_window,help:donialink_app.action_app_message
+msgid ""
+"Reports from DoniaLink and notifications from other modules appear here, one"
+" line per person."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.actions.act_window,name:donialink_app.action_app_screen
+#: model:ir.ui.menu,name:donialink_app.menu_screens
+msgid "Screens"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__sender
+msgid "Sender"
+msgstr ""
+
+#. module: donialink_app
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_message_form
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_message_list
+msgid "Sent"
+msgstr ""
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/models/res_users.py:0
+msgid "Sent to %(name)s (%(count)s phone(s))."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__sequence
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_kind__description
+msgid "Shown to people under the kind in the app settings."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_message__sender
+msgid ""
+"Shown under the title, e.g. \"DoniaLink\" or the name of the person who sent"
+" it."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_kind__muted_user_ids
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_kind_form
+msgid "Switched Off By"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_kind__code
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_message__kind_code
+msgid "Technical key used by the code that sends, e.g. \"report\"."
+msgstr ""
+
+#. module: donialink_app
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_kind_form
+msgid "Test"
+msgstr "اختبار"
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/models/res_users.py:0
+msgid "Test notification"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_message__preview
+msgid "The body as one line of text."
+msgstr ""
+
+#. module: donialink_app
+#: model:donialink.app.screen,description:donialink_app.screen_odoo
+msgid "The full system"
+msgstr "النظام الكامل"
+
+#. module: donialink_app
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_screen__key
+msgid "The key the JavaScript screen registers with."
+msgstr ""
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/controllers/main.py:0
+msgid "The server key changed. Turn notifications on again."
+msgstr ""
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/controllers/main.py:0
+msgid "This notification can not be switched off."
+msgstr ""
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/controllers/main.py:0
+msgid "This phone will receive notifications from %s."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_screen__on_home
+msgid "Tile on Home"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__title
+msgid "Title"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_donialink_app_message__user_id
+msgid "To"
+msgstr ""
+
+#. module: donialink_app
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_message_search
+msgid "Unread"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,field_description:donialink_app.field_res_users__dl_app_unread
+msgid "Unread in the App"
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model,name:donialink_app.model_res_users
+msgid "User"
+msgstr "المستخدم"
+
+#. module: donialink_app
+#: model:donialink.app.kind,description:donialink_app.kind_report
+msgid "Weekly and monthly reports your accountant prepares"
+msgstr "تقارير أسبوعية وشهرية يعدّها محاسبك"
+
+#. module: donialink_app
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_message__origin
+msgid "What sent it (a module, \"platform\", …)."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_message__url
+msgid ""
+"Where a tap leads: \"#<screen key>\" (an app screen), \"/odoo/…\" or "
+"https://… Empty: the message itself."
+msgstr ""
+
+#. module: donialink_app
+#: model:ir.model.fields,help:donialink_app.field_donialink_app_kind__recipient_ids
+msgid "Who receives this kind when the sender does not name the people."
+msgstr ""
+
+#. module: donialink_app
+#: model_terms:ir.ui.view,arch_db:donialink_app.view_app_message_search
+msgid "With a File"
+msgstr ""
+
+#. module: donialink_app
+msgid "People"
+msgstr "الأشخاص"
+
+#. module: donialink_app
+msgid "New user"
+msgstr "مستخدم جديد"
+
+#. module: donialink_app
+msgid "Who receives what"
+msgstr "من يستلم ماذا"
+
+#. module: donialink_app
+msgid "Who sees what"
+msgstr "من يرى ماذا"
+
+#. module: donialink_app
+msgid "Activity"
+msgstr "النشاط"
+
+#. module: donialink_app
+msgid "Broadcast"
+msgstr "رسالة جماعية"
+
+#. module: donialink_app
+msgid "Open the app"
+msgstr "فتح التطبيق"
+
+#. module: donialink_app
+msgid "without a phone connected"
+msgstr "بدون هاتف متصل"
+
+#. module: donialink_app
+msgid "today"
+msgstr "اليوم"
+
+#. module: donialink_app
+msgid "this week"
+msgstr "هذا الأسبوع"
+
+#. module: donialink_app
+msgid "Roles"
+msgstr "الأدوار"
+
+#. module: donialink_app
+msgid "Type"
+msgstr "النوع"
+
+#. module: donialink_app
+msgid "Companies"
+msgstr "الشركات"
+
+#. module: donialink_app
+msgid "Phone"
+msgstr "الهاتف"
+
+#. module: donialink_app
+msgid "Last in the app"
+msgstr "آخر دخول للتطبيق"
+
+#. module: donialink_app
+msgid "Change"
+msgstr "تغيير"
+
+#. module: donialink_app
+msgid "Save"
+msgstr "حفظ"
+
+#. module: donialink_app
+msgid "Open"
+msgstr "فتح"
+
+#. module: donialink_app
+msgid "Password"
+msgstr "كلمة المرور"
+
+#. module: donialink_app
+msgid "Archive"
+msgstr "أرشفة"
+
+#. module: donialink_app
+msgid "Restore"
+msgstr "استعادة"
+
+#. module: donialink_app
+msgid "Phone or login"
+msgstr "الهاتف أو اسم الدخول"
+
+#. module: donialink_app
+msgid "Role"
+msgstr "الدور"
+
+#. module: donialink_app
+msgid "Create"
+msgstr "إنشاء"
+
+#. module: donialink_app
+msgid "Notification"
+msgstr "الإشعار"
+
+#. module: donialink_app
+msgid "Groups"
+msgstr "المجموعات"
+
+#. module: donialink_app
+msgid "Push"
+msgstr "إشعار الهاتف"
+
+#. module: donialink_app
+msgid "Screen"
+msgstr "الشاشة"
+
+#. module: donialink_app
+msgid "Everyone"
+msgstr "الجميع"
+
+#. module: donialink_app
+msgid "Today"
+msgstr "اليوم"
+
+#. module: donialink_app
+msgid "This week"
+msgstr "هذا الأسبوع"
+
+#. module: donialink_app
+msgid "Pushes (week)"
+msgstr "إشعارات الهاتف (أسبوع)"
+
+#. module: donialink_app
+msgid "Not pushed (week)"
+msgstr "لم تصل للهاتف (أسبوع)"
+
+#. module: donialink_app
+msgid "No phone connected"
+msgstr "لا هاتف متصل"
+
+#. module: donialink_app
+msgid "Message"
+msgstr "الرسالة"
+
+#. module: donialink_app
+msgid "Send"
+msgstr "إرسال"
+
+#. module: donialink_app
+msgid "Never"
+msgstr "أبداً"
+
+#. module: donialink_app
+msgid "Close"
+msgstr "إغلاق"
+
+#. module: donialink_app
+msgid "Search a name or login"
+msgstr "ابحث باسم أو اسم دخول"
+
+#. module: donialink_app
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+#. module: donialink_app
+msgid "Owner"
+msgstr "المالك"
+
+#. module: donialink_app
+msgid "Accountant"
+msgstr "المحاسب"
+
+#. module: donialink_app
+msgid "Staff / Cashier"
+msgstr "موظف / كاشير"
+
+#. module: donialink_app
+msgid "See business summary"
+msgstr "رؤية ملخص العمل"
+
+#. module: donialink_app
+msgid "See finance (profit, bills)"
+msgstr "رؤية المالية (الأرباح والفواتير)"
+
+#. module: donialink_app
+msgid "Business summary"
+msgstr "ملخص العمل"
+
+#. module: donialink_app
+msgid "Only App Managers can use the DoniaLink App dashboard."
+msgstr "لوحة تطبيق دنيا لينك لمديري التطبيق فقط."
+
+#. module: donialink_app
+msgid "Choose who receives the message."
+msgstr "اختر من يستلم الرسالة."
+
+#. module: donialink_app
+msgid "The login %s is already used."
+msgstr "اسم الدخول %s مستخدم مسبقاً."
+
+#. module: donialink_app
+msgid "Give a name and a phone number or login."
+msgstr "أدخل الاسم ورقم الهاتف أو اسم الدخول."
+
+#. module: donialink_app
+msgid "You can not archive yourself."
+msgstr "لا يمكنك أرشفة نفسك."
+
+#. module: donialink_app
+msgid "You do not have access to this company."
+msgstr "لا تملك صلاحية على هذه الشركة."
