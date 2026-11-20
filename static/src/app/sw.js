@@ -1,7 +1,7 @@
 /* DoniaLink App service worker: notifications, and the app opening without internet.
    Served at {{APP}}/sw.js (scope {{APP}}/). The API and files always go to the server. */
 const VERSION = 'dl-app-{{VERSION}}';
-const SHELL = ['{{APP}}', '{{IMG}}/icon-192.png', '{{IMG}}/favicon-32.png'];
+const SHELL = ['{{APP}}', '{{APP}}/icon/192.png', '{{APP}}/icon/32.png'];
 
 self.addEventListener('install', (event) => {
     event.waitUntil(caches.open(VERSION).then((cache) => cache.addAll(SHELL)).catch(() => {}).then(() => self.skipWaiting()));
@@ -53,13 +53,13 @@ self.addEventListener('push', (event) => {
     } catch (e) {
         data = { title: event.data ? event.data.text() : '' };
     }
-    const options = Object.assign({ icon: '{{IMG}}/icon-192.png', badge: '{{IMG}}/favicon-32.png', dir: 'auto' },
+    const options = Object.assign({ icon: '{{APP}}/icon/192.png', badge: '{{APP}}/icon/32.png', dir: 'auto' },
         data.options || {});
     if (!options.tag) {
         delete options.tag;
     }
     options.data = Object.assign({}, options.data || {});
-    event.waitUntil(self.registration.showNotification(data.title || 'DoniaLink', options).then(() => {
+    event.waitUntil(self.registration.showNotification(data.title || '{{NAME}}', options).then(() => {
         if (self.navigator && self.navigator.setAppBadge) {
             return self.registration.getNotifications().then((list) => self.navigator.setAppBadge(list.length)).catch(() => {});
         }

@@ -222,3 +222,5 @@ button, input { font: inherit; color: inherit; }
 .dl-comment { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
 .dl-pre { white-space: pre-wrap; }
 details.dl-card > summary { cursor: pointer; font-weight: 600; }
+
+.dl-hero-logo { width: 44px; height: 44px; border-radius: 12px; object-fit: contain; background: #fff; flex: none; }

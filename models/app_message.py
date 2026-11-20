@@ -12,8 +12,8 @@ from odoo.tools import html2plaintext, is_html_empty, plaintext2html
 _logger = logging.getLogger(__name__)
 
 APP_PATH = '/dl/app'
-ICON = '/donialink_app/static/img/icon-192.png'
-BADGE = '/donialink_app/static/img/favicon-32.png'
+ICON = '/dl/app/icon/192.png'   # the client's logo (see the controller)
+BADGE = '/dl/app/icon/32.png'
 _TAG = re.compile(r'<[a-zA-Z/][^>]*>')
 
 

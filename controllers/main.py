@@ -26,8 +26,42 @@ def _version():
     return module.latest_version or '1'
 
 
+def _brand_company():
+    """The client the app is branded with: the person's company, else the main company."""
+    user = request.env.user
+    if user and not user._is_public():
+        return user.company_id.sudo()
+    return (request.env.ref('base.main_company', raise_if_not_found=False)
+            or request.env['res.company'].sudo().search([], limit=1)).sudo()
+
+
 def _app_name():
-    return request.env['ir.config_parameter'].sudo().get_param('donialink_app.name') or 'DoniaLink'
+    """The client's name (or donialink_app.name when set), never ours."""
+    return (request.env['ir.config_parameter'].sudo().get_param('donialink_app.name')
+            or _brand_company().name or 'App')
+
+
+ICON_SIZES = (32, 180, 192, 512)
+
+
+def _logo_png(company, size, maskable=False):
+    """The company logo centred on a white square of ``size`` px (PNG), or None without a logo."""
+    if not company.logo:
+        return None
+    try:
+        from PIL import Image
+        import io
+        logo = Image.open(io.BytesIO(base64.b64decode(company.logo))).convert('RGBA')
+        canvas = Image.new('RGBA', (size, size), (255, 255, 255, 255))
+        inner = int(size * (0.62 if maskable else 0.82))
+        logo.thumbnail((inner, inner), Image.LANCZOS)
+        canvas.paste(logo, ((size - logo.width) // 2, (size - logo.height) // 2), logo)
+        out = io.BytesIO()
+        canvas.convert('RGB').save(out, format='PNG', optimize=True)
+        return out.getvalue()
+    except Exception as e:  # noqa: BLE001 - a broken logo falls back to the default icon
+        _logger.info('DoniaLink App: company logo unusable as icon: %s', e)
+        return None
 
 
 class DonialinkApp(http.Controller):
@@ -48,6 +82,7 @@ class DonialinkApp(http.Controller):
             'direction': 'rtl' if lang.startswith(('ar', 'fa', 'he', 'ur')) else 'ltr',
             'version': _version(),
             'img': IMG,
+            'icon': APP + '/icon',
         })
         response.headers['Cache-Control'] = 'no-cache'
         response.headers['X-Frame-Options'] = 'DENY'
@@ -69,9 +104,9 @@ class DonialinkApp(http.Controller):
             'theme_color': '#0e3f64',
             'dir': 'auto',
             'icons': [
-                {'src': f'{IMG}/icon-192.png', 'sizes': '192x192', 'type': 'image/png'},
-                {'src': f'{IMG}/icon-512.png', 'sizes': '512x512', 'type': 'image/png'},
-                {'src': f'{IMG}/icon-maskable-512.png', 'sizes': '512x512', 'type': 'image/png',
+                {'src': f'{APP}/icon/192.png', 'sizes': '192x192', 'type': 'image/png'},
+                {'src': f'{APP}/icon/512.png', 'sizes': '512x512', 'type': 'image/png'},
+                {'src': f'{APP}/icon/maskable-512.png', 'sizes': '512x512', 'type': 'image/png',
                  'purpose': 'maskable'},
             ],
         }
@@ -81,12 +116,25 @@ class DonialinkApp(http.Controller):
     @http.route(APP + '/sw.js', type='http', auth='public', sitemap=False)
     def app_service_worker(self, **kw):
         js = (STATIC / 'src' / 'app' / 'sw.js').read_text(encoding='utf-8')
-        js = js.replace('{{VERSION}}', _version()).replace('{{IMG}}', IMG).replace('{{APP}}', APP)
+        js = (js.replace('{{VERSION}}', _version()).replace('{{IMG}}', IMG).replace('{{APP}}', APP)
+              .replace('{{NAME}}', json.dumps(_app_name())[1:-1]))
         return request.make_response(js, headers=[
             ('Content-Type', 'application/javascript; charset=utf-8'),
             ('Cache-Control', 'no-cache'),
             ('Service-Worker-Allowed', APP + '/'),
         ])
+
+    @http.route([APP + '/icon/<int:size>.png', APP + '/icon/maskable-<int:size>.png'], type='http', auth='public',
+                sitemap=False)
+    def app_icon(self, size, **kw):
+        """The app icon from the client's logo (home screen, notifications, favicon)."""
+        size = size if size in ICON_SIZES else 192
+        maskable = 'maskable' in request.httprequest.path
+        png = _logo_png(_brand_company(), size, maskable=maskable)
+        if png is None:
+            name = {32: 'favicon-32.png', 180: 'icon-180.png', 512: 'icon-maskable-512.png' if maskable else 'icon-512.png'}
+            png = (STATIC / 'img' / name.get(size, 'icon-192.png')).read_bytes()
+        return request.make_response(png, headers=[('Content-Type', 'image/png'), ('Cache-Control', 'public, max-age=3600')])
 
     @http.route(APP + '/file/<int:message_id>', type='http', auth='user', sitemap=False)
     def app_file(self, message_id, download=None, **kw):
@@ -141,6 +189,7 @@ class DonialinkApp(http.Controller):
         return {
             'app_name': _app_name(),
             'version': _version(),
+            'logo': APP + '/icon/192.png',
             'user': {'id': user.id, 'name': user.name, 'lang': user.lang or 'en_US',
                      'internal': user._is_internal(), 'company': user.company_id.name,
                      'avatar': '/web/image/res.users/%s/avatar_128' % user.id},

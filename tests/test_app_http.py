@@ -75,3 +75,27 @@ class TestAppHttp(HttpCase):
         self.assertEqual(self.api('push_subscribe', vapid_key='old', subscription={})['error'], 'push_key')
         self.api('push_unsubscribe', endpoint='https://push.example.com/portal')
         self.assertFalse(device.exists())
+
+    def test_client_branding(self):
+        """The app carries the client's name and logo, not DoniaLink's."""
+        import base64
+        import io
+        from PIL import Image
+        company = self.owner.company_id
+        company.name = 'Cafe Baghdad'
+        buf = io.BytesIO()
+        Image.new('RGB', (300, 120), (200, 30, 30)).save(buf, format='PNG')
+        company.logo = base64.b64encode(buf.getvalue())
+        self.authenticate('dl_http_owner', 'dl_http_owner1')
+        manifest = self.url_open('/dl/app/manifest.webmanifest').json()
+        self.assertEqual(manifest['name'], 'Cafe Baghdad')
+        self.assertTrue(all(i['src'].startswith('/dl/app/icon/') for i in manifest['icons']))
+        icon = self.url_open('/dl/app/icon/192.png')
+        self.assertEqual(icon.headers['Content-Type'], 'image/png')
+        image = Image.open(io.BytesIO(icon.content))
+        self.assertEqual(image.size, (192, 192))
+        self.assertEqual(image.getpixel((96, 96))[:3], (200, 30, 30), 'the logo is in the middle')
+        self.assertIn('Cafe Baghdad', self.url_open('/dl/app').text)
+        self.assertEqual(self.api('session')['logo'], '/dl/app/icon/192.png')
+        company.logo = False
+        self.assertEqual(self.url_open('/dl/app/icon/512.png').status_code, 200, 'falls back to the default icon')

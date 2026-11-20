@@ -118,6 +118,7 @@
             const s = app.session;
             const tiles = s.screens.filter((x) => x.home);
             el.append(h('header', { class: 'dl-hero' }, [
+                s.logo ? h('img', { class: 'dl-hero-logo', src: s.logo, alt: s.user.company }) : null,
                 h('div', { class: 'dl-hero-text' }, [
                     h('span', { class: 'dl-hero-company' }, s.user.company),
                     h('h1', {}, t('Hello, {0}', s.user.name.split(' ')[0])),
@@ -151,7 +152,6 @@
             const data = await app.rpc('inbox', { limit: 5 });
             latest.append(data.messages.length ? h('div', { class: 'dl-list' }, data.messages.map(messageRow))
                 : h('p', { class: 'dl-empty' }, t('Nothing new.')));
-            body.append(h('p', { class: 'dl-footer' }, t('Powered by DoniaLink')));
         },
     });
 
