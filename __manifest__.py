@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'DoniaLink App',
-    'version': '18.0.1.3.0',
+    'version': '18.0.1.4.0',
     'summary': 'One installable phone app (PWA) for the business: notifications, reports and screens added by '
                'other modules.',
     'description': """
@@ -62,6 +62,7 @@ Developed by Yousif Shakir - Donialink | تطوير يوسف شاكر
             'donialink_app/static/src/app/screens.js',
             'donialink_app/static/src/app/summary.js',
             'donialink_app/static/src/app/tasks.js',
+            'donialink_app/static/src/app/chat.js',
         ],
     },
     'images': ['static/description/icon.png'],

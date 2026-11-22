@@ -9,7 +9,7 @@ import json
 import logging
 from pathlib import Path
 
-from odoo import _, fields, http
+from odoo import _, fields, http, tools
 from odoo.exceptions import AccessDenied, AccessError, UserError
 from odoo.http import request
 from odoo.service import security
@@ -136,6 +136,15 @@ class DonialinkApp(http.Controller):
             name = {32: 'favicon-32.png', 180: 'icon-180.png', 512: 'icon-maskable-512.png' if maskable else 'icon-512.png'}
             png = (STATIC / 'img' / name.get(size, 'icon-192.png')).read_bytes()
         return request.make_response(png, headers=[('Content-Type', 'image/png'), ('Cache-Control', 'public, max-age=3600')])
+
+    @http.route(APP + '/chat/file/<int:attachment_id>', type='http', auth='user', sitemap=False)
+    def app_chat_file(self, attachment_id, download=None, **kw):
+        """A file of a chat message, for the members of that conversation only."""
+        attachment = request.env['ir.attachment'].sudo().browse(attachment_id).exists()
+        if not attachment or attachment.res_model != 'discuss.channel' or not request.env['discuss.channel.member'].sudo(
+        ).search_count([('channel_id', '=', attachment.res_id), ('partner_id', '=', request.env.user.partner_id.id)]):
+            raise request.not_found()
+        return request.env['ir.binary']._get_stream_from(attachment).get_response(as_attachment=bool(download))
 
     @http.route(APP + '/file/<int:message_id>', type='http', auth='user', sitemap=False)
     def app_file(self, message_id, download=None, **kw):
@@ -316,6 +325,127 @@ class DonialinkApp(http.Controller):
             'repeat_weekdays': repeat_weekdays or False,
         })
         return {'task': task.sudo()._to_app(full=True)[0]}
+
+    # chat (Odoo Discuss: direct chats and groups, portal users too; access = being a member) -----------
+
+    def _chat_people(self):
+        """The people one can chat with: app users of the person's companies (internal and portal)."""
+        user = request.env.user
+        people = request.env['donialink.app.admin'].sudo().with_context(
+            allowed_company_ids=user.company_ids.ids)._people()
+        return people.filtered(lambda u: u.active and u != user)
+
+    def _chat_member(self, channel_id):
+        member = request.env['discuss.channel.member'].sudo().search(
+            [('channel_id', '=', int(channel_id or 0)), ('partner_id', '=', request.env.user.partner_id.id)], limit=1)
+        if not member:
+            raise AccessError(_('You are not in this conversation.'))
+        return member
+
+    def _chat_title(self, channel):
+        me = request.env.user.partner_id
+        if channel.channel_type == 'chat':
+            other = channel.channel_member_ids.partner_id - me
+            return other[:1].name or channel.name
+        return channel.name or ', '.join((channel.channel_member_ids.partner_id - me).mapped('name'))
+
+    def _chat_message(self, message):
+        me = request.env.user.partner_id
+        return {
+            'id': message.id, 'mine': message.author_id == me, 'author': message.author_id.name or '',
+            'body': str(message.body or ''), 'date': fields.Datetime.to_string(message.date),
+            'files': [{'id': a.id, 'name': a.name, 'mimetype': a.mimetype or '',
+                       'url': '%s/chat/file/%s' % (APP, a.id)} for a in message.attachment_ids],
+        }
+
+    def _api_chats(self):
+        me = request.env.user.partner_id
+        members = request.env['discuss.channel.member'].sudo().search([
+            ('partner_id', '=', me.id), ('channel_id.channel_type', 'in', ('chat', 'group'))])
+        Message = request.env['mail.message'].sudo()
+        bot = request.env.ref('base.partner_root')
+        rows = []
+        for member in members:
+            channel = member.channel_id
+            if channel.channel_type == 'chat' and bot in channel.channel_member_ids.partner_id:
+                continue   # Odoo's welcome chat with OdooBot
+            last = Message.search([('model', '=', 'discuss.channel'), ('res_id', '=', channel.id),
+                                   ('message_type', '=', 'comment')], order='id desc', limit=1)
+            if channel.channel_type == 'chat' and not last:
+                continue   # a direct chat nobody wrote in yet
+            preview = ' '.join(tools.html2plaintext(last.body or '').split())[:120] if last else ''
+            if last and not preview and last.attachment_ids:
+                preview = '📎 ' + last.attachment_ids[0].name
+            rows.append({
+                'id': channel.id, 'type': channel.channel_type, 'name': self._chat_title(channel),
+                'members': len(channel.channel_member_ids), 'unread': member.message_unread_counter,
+                'last': preview, 'last_mine': bool(last and last.author_id == me),
+                'date': fields.Datetime.to_string(last.date if last else channel.create_date),
+            })
+        rows.sort(key=lambda r: r['date'] or '', reverse=True)
+        return {'chats': rows}
+
+    def _api_chat_people(self):
+        return {'people': [{'id': u.id, 'partner_id': u.partner_id.id, 'name': u.name,
+                            'company': u.company_id.name} for u in self._chat_people()]}
+
+    def _api_chat_open(self, user_id):
+        other = self._chat_people().filtered(lambda u: u.id == int(user_id or 0))
+        if not other:
+            raise AccessError(_('You can not chat with this person.'))
+        channel = request.env['discuss.channel'].sudo().channel_get([other.partner_id.id])
+        return {'chat_id': channel.id}
+
+    def _api_chat_group(self, name, user_ids):
+        people = self._chat_people().filtered(lambda u: u.id in [int(i) for i in user_ids or []])
+        if not people:
+            raise UserError(_('Choose who is in the group.'))
+        channel = request.env['discuss.channel'].sudo().create_group(
+            partners_to=(people.partner_id | request.env.user.partner_id).ids, name=(name or '').strip()[:100])
+        return {'chat_id': channel.id}
+
+    def _api_chat_messages(self, chat_id, before=None, after=None, limit=40):
+        member = self._chat_member(chat_id)
+        channel = member.channel_id
+        domain = [('model', '=', 'discuss.channel'), ('res_id', '=', channel.id), ('message_type', '=', 'comment')]
+        if before:
+            domain.append(('id', '<', int(before)))
+        if after:
+            domain.append(('id', '>', int(after)))
+        limit = max(1, min(int(limit or 40), 100))
+        messages = request.env['mail.message'].sudo().search(domain, order='id desc', limit=limit + 1)
+        more = len(messages) > limit
+        messages = messages[:limit]
+        if messages and not before:
+            member._mark_as_read(messages[0].id)
+        return {
+            'chat': {'id': channel.id, 'type': channel.channel_type, 'name': self._chat_title(channel),
+                     'members': [p.name for p in channel.channel_member_ids.partner_id]},
+            'messages': [self._chat_message(m) for m in reversed(messages)], 'more': more and not after,
+        }
+
+    def _api_chat_send(self, chat_id, body=None, files=None):
+        member = self._chat_member(chat_id)
+        channel = member.channel_id
+        text = (body or '').strip()[:4000]
+        attachments = request.env['ir.attachment'].sudo()
+        for item in (files or [])[:5]:
+            try:
+                content = base64.b64decode((item or {}).get('content_b64') or '', validate=True)
+            except (binascii.Error, ValueError):
+                raise UserError(_('This file could not be read.')) from None
+            if not content or len(content) > 15 * 1024 * 1024:
+                raise UserError(_('Each file must be smaller than 15 MB.'))
+            attachments |= attachments.create({
+                'name': (item.get('filename') or 'file')[:200], 'raw': content,
+                'mimetype': item.get('mimetype') or None, 'res_model': 'discuss.channel', 'res_id': channel.id})
+        if not text and not attachments:
+            return {'error': 'bad_request'}
+        message = channel.sudo().with_context(mail_create_nosubscribe=True).message_post(
+            body=tools.plaintext2html(text) if text else '', author_id=request.env.user.partner_id.id,
+            message_type='comment', subtype_xmlid='mail.mt_comment', attachment_ids=attachments.ids)
+        member._mark_as_read(message.id)
+        return {'message': self._chat_message(message)}
 
     def _api_badges(self):
         user = request.env.user

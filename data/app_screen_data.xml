@@ -23,6 +23,15 @@
         <field name="requires_model">donialink.agent.tools</field>
         <field name="group_ids" eval="[(6, 0, [ref('donialink_app.group_summary')])]"/>
     </record>
+    <record id="screen_chat" model="donialink.app.screen">
+        <field name="key">chat</field>
+        <field name="name">Chat</field>
+        <field name="description">Talk to your team</field>
+        <field name="icon">chat</field>
+        <field name="sequence">2</field>
+        <field name="badge_model">discuss.channel</field>
+        <field name="badge_method">dl_app_chat_badge</field>
+    </record>
     <record id="screen_odoo" model="donialink.app.screen">
         <field name="key">odoo</field>
         <field name="name">Open Odoo</field>

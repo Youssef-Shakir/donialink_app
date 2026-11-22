@@ -5,4 +5,5 @@ from . import app_summary
 from . import app_role
 from . import app_admin
 from . import app_task
+from . import app_chat
 from . import res_users

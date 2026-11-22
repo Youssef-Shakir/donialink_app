@@ -70,7 +70,9 @@ self.addEventListener('notificationclick', (event) => {
     event.notification.close();
     const data = event.notification.data || {};
     let url = data.url;
-    if (!url && data.model && data.res_id) {
+    if (!url && data.model === 'discuss.channel' && data.res_id) {
+        url = '{{APP}}#chat-' + data.res_id;   // a chat message (Odoo Discuss): open it in the app
+    } else if (!url && data.model && data.res_id) {
         url = '/odoo/' + data.model + '/' + data.res_id;  // a Discuss message pushed by Odoo itself
     }
     const target = new URL(url || '{{APP}}', self.location.origin);
