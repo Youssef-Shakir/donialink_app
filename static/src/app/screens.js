@@ -37,7 +37,7 @@
             'Account': 'الحساب', 'App version {0}': 'إصدار التطبيق {0}',
             'Nothing to receive yet.': 'لا يوجد ما يصلك بعد.',
             'Powered by DoniaLink': 'بواسطة دنيا لينك',
-            'Notifications on this phone': 'الإشعارات على هذا الهاتف', 'Checking…': 'جارٍ التحقق…',
+            'Notifications on this phone': 'الإشعارات على هذا الهاتف', 'Language': 'اللغة', 'Checking…': 'جارٍ التحقق…',
             'Notifications are not ready: reload the app (it needs a secure https address).': 'الإشعارات غير جاهزة: أعد تحميل التطبيق (يحتاج عنواناً آمناً https).', 'Change password': 'تغيير كلمة المرور',
             'Current password': 'كلمة المرور الحالية', 'New password': 'كلمة المرور الجديدة',
             'New password again': 'أعد كلمة المرور الجديدة', 'The two new passwords are different.': 'كلمتا المرور الجديدتان غير متطابقتين.',
@@ -323,6 +323,21 @@
                 };
             }
             el.append(phone);
+            const current = (s.user.lang || 'en').slice(0, 2);
+            el.append(h('section', { class: 'dl-card' }, [
+                h('h2', {}, 'اللغة / Language'),
+                h('div', { class: 'dl-chips', role: 'radiogroup' }, [['ar', 'العربية'], ['en', 'English']].map(([code, label]) => h('button', {
+                    role: 'radio', 'aria-selected': String(current === code), onclick: async () => {
+                        if (current === code) {
+                            return;
+                        }
+                        try {
+                            await app.rpc('lang_set', { lang: code });
+                            window.location.reload();
+                        } catch (e) { app.toast(e.message, 'bad'); }
+                    },
+                }, label))),
+            ]));
             const steps = installSteps();
             if (steps) {
                 el.append(steps);

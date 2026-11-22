@@ -210,6 +210,17 @@ class DonialinkApp(http.Controller):
             'summary': request.env['donialink.app.summary']._info(user),
         }
 
+    def _api_lang_set(self, lang):
+        """The person's language (the app, its notifications and Odoo follow it): Arabic or English."""
+        Lang = request.env['res.lang'].sudo()
+        code = {'ar': 'ar_001', 'en': 'en_US'}.get(str(lang or '')[:2])
+        if not code:
+            return {'error': 'bad_request'}
+        if not Lang._lang_get(code):
+            Lang._activate_lang(code)
+        request.env.user.sudo().lang = code
+        return {'lang': code}
+
     def _api_password(self, old, new):
         """The person changes their own password (internal or portal); the session stays open."""
         new = new or ''

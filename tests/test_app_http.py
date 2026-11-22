@@ -109,3 +109,11 @@ class TestAppHttp(HttpCase):
         self.assertIn('unread', self.api('session'), 'the session stays open')
         self.authenticate('dl_http_other', 'New-pass-123')
         self.assertIn('unread', self.api('session'))
+
+    def test_language(self):
+        self.authenticate('dl_http_other', 'dl_http_other1')
+        self.assertEqual(self.api('lang_set', lang='ar')['lang'], 'ar_001')
+        self.assertEqual(self.other.lang, 'ar_001')
+        self.assertEqual(self.url_open('/dl/app').text.count('dir="rtl"'), 1, 'the app opens right to left')
+        self.assertEqual(self.api('lang_set', lang='en')['lang'], 'en_US')
+        self.assertEqual(self.api('lang_set', lang='fr')['error'], 'bad_request')

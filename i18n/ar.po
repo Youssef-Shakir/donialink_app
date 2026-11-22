@@ -940,3 +940,43 @@ msgstr "دور جديد، مثل: المطبخ"
 #. module: donialink_app
 msgid "Give the role a name."
 msgstr "أعطِ الدور اسماً."
+
+#. module: donialink_app
+#: model:donialink.app.kind,name:donialink_app.kind_task_assigned
+msgid "Task assigned to me"
+msgstr "مهمة أُسندت إليّ"
+
+#. module: donialink_app
+#: model:donialink.app.kind,description:donialink_app.kind_task_assigned
+msgid "A new task for you"
+msgstr "مهمة جديدة لك"
+
+#. module: donialink_app
+#: model:donialink.app.kind,name:donialink_app.kind_task_due
+msgid "Task reminders"
+msgstr "تذكيرات المهام"
+
+#. module: donialink_app
+#: model:donialink.app.kind,description:donialink_app.kind_task_due
+msgid "A task is due soon or overdue"
+msgstr "مهمة قرب موعدها أو تأخرت"
+
+#. module: donialink_app
+#: model:donialink.app.kind,name:donialink_app.kind_task_done
+msgid "Task done"
+msgstr "أُنجزت مهمة"
+
+#. module: donialink_app
+#: model:donialink.app.kind,description:donialink_app.kind_task_done
+msgid "Someone finished a task you gave"
+msgstr "أنهى أحدهم مهمة أسندتها"
+
+#. module: donialink_app
+#: model:donialink.app.screen,name:donialink_app.screen_chat
+msgid "Chat"
+msgstr "المحادثات"
+
+#. module: donialink_app
+#: model:donialink.app.screen,description:donialink_app.screen_chat
+msgid "Talk to your team"
+msgstr "تحدّث مع فريقك"
