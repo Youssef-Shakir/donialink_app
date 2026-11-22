@@ -810,3 +810,133 @@ msgstr "لا يمكنك أرشفة نفسك."
 #. module: donialink_app
 msgid "You do not have access to this company."
 msgstr "لا تملك صلاحية على هذه الشركة."
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/models/app_task.py:0
+msgid "New task: %s"
+msgstr "مهمة جديدة: %s"
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/models/app_task.py:0
+msgid "Task done: %s"
+msgstr "أُنجزت المهمة: %s"
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/models/app_task.py:0
+msgid "Task due: %s"
+msgstr "موعد المهمة: %s"
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/models/app_task.py:0
+msgid "Overdue: %s"
+msgstr "متأخرة: %s"
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/models/app_task.py:0
+msgid "%(who)s finished it."
+msgstr "أنجزها %(who)s."
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/models/app_task.py:0
+msgid "Due %s"
+msgstr "الموعد %s"
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/models/app_task.py:0
+msgid "%s points to tick"
+msgstr "%s بنود للتحقق"
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/models/app_task.py:0
+msgid "%(creator)s gave you a task: %(task)s"
+msgstr "%(creator)s أسند إليك مهمة: %(task)s"
+
+#. module: donialink_app
+#. odoo-python
+#: code:addons/donialink_app/models/app_task.py:0
+msgid "Task"
+msgstr "مهمة"
+
+#. module: donialink_app
+msgid "Advanced"
+msgstr "متقدم"
+
+#. module: donialink_app
+msgid "People with this role"
+msgstr "الأشخاص في هذا الدور"
+
+#. module: donialink_app
+msgid "Nobody yet."
+msgstr "لا أحد بعد."
+
+#. module: donialink_app
+msgid "+ Add a person"
+msgstr "+ إضافة شخص"
+
+#. module: donialink_app
+msgid "Receives these notifications"
+msgstr "يستلم هذه الإشعارات"
+
+#. module: donialink_app
+msgid "Sees these screens in the app"
+msgstr "يرى هذه الشاشات في التطبيق"
+
+#. module: donialink_app
+msgid "Everyone sees it"
+msgstr "يراها الجميع"
+
+#. module: donialink_app
+msgid "Comes with this role's access"
+msgstr "تأتي مع صلاحيات هذا الدور"
+
+#. module: donialink_app
+msgid "Advanced: Odoo access groups this role gives"
+msgstr "متقدم: مجموعات صلاحيات أودو التي يمنحها هذا الدور"
+
+#. module: donialink_app
+msgid "+ Add an access group"
+msgstr "+ إضافة مجموعة صلاحيات"
+
+#. module: donialink_app
+msgid "+ Add role"
+msgstr "+ إضافة دور"
+
+#. module: donialink_app
+msgid "Delete"
+msgstr "حذف"
+
+#. module: donialink_app
+msgid "Portal: free, app only"
+msgstr "بوابة: مجاني، التطبيق فقط"
+
+#. module: donialink_app
+msgid "Internal: also uses Odoo"
+msgstr "داخلي: يستخدم أودو أيضاً"
+
+#. module: donialink_app
+msgid "Default for new people"
+msgstr "افتراضي للأشخاص الجدد"
+
+#. module: donialink_app
+msgid "What is this role for?"
+msgstr "ما وظيفة هذا الدور؟"
+
+#. module: donialink_app
+msgid "No role"
+msgstr "بدون دور"
+
+#. module: donialink_app
+msgid "New role, e.g. Kitchen"
+msgstr "دور جديد، مثل: المطبخ"
+
+#. module: donialink_app
+msgid "Give the role a name."
+msgstr "أعطِ الدور اسماً."

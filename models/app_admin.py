@@ -36,7 +36,8 @@ class DonialinkAppAdmin(models.AbstractModel):
 
     @api.model
     def _people(self):
-        """Everyone who can use the app: active and archived internal and portal users (not the bots)."""
+        """Everyone who can use the app in the companies selected in the company switcher: active and archived
+        internal and portal users (not the bots)."""
         Users = self.env['res.users'].sudo().with_context(active_test=False)
         excluded = self.env.ref('base.user_root') | self.env.ref('base.public_user')
         agent = self.env.ref('donialink_agent.user_agent', raise_if_not_found=False)
@@ -49,7 +50,7 @@ class DonialinkAppAdmin(models.AbstractModel):
             excluded |= Users.browse(int(template))
         portal = self.env.ref('base.group_portal')
         return Users.search(['|', ('share', '=', False), ('groups_id', 'in', portal.ids),
-                             ('id', 'not in', excluded.ids), ('company_ids', 'in', self.env.user.company_ids.ids)],
+                             ('id', 'not in', excluded.ids), ('company_ids', 'in', self.env.companies.ids)],
                             order='active desc, name')
 
     # ------------------------------------------------------------------
@@ -78,16 +79,25 @@ class DonialinkAppAdmin(models.AbstractModel):
                 'last_seen': fields.Datetime.to_string(u.dl_app_last_seen) if u.dl_app_last_seen else False,
             } for u in people],
             'roles': [{'id': r.id, 'name': r.name, 'type': r.user_type, 'default': r.is_default,
-                       'description': r.description or '', 'count': len(r.user_ids)} for r in roles],
+                       'description': r.description or '', 'count': len(r.user_ids & people),
+                       'kinds': r.kind_ids.ids, 'screens': r.screen_ids.ids, 'users': (r.user_ids & people).ids,
+                       'groups': r.group_ids.ids,
+                       # screens the role opens through the access groups it gives (implied groups too)
+                       'screens_by_access': screens.filtered(lambda sc, g=(r.group_ids | r.group_ids.trans_implied_ids):
+                                                             sc.group_ids & g).ids} for r in roles],
+            'all_groups': [{'id': g.id, 'name': g.full_name} for g in self.env['res.groups'].sudo().search(
+                [('share', '=', False)], order='full_name')] if self.env.user.has_group('base.group_system') else
+                [{'id': g.id, 'name': g.full_name} for g in self.env.user.groups_id.sorted('full_name')],
             'groups': [{'id': g.id, 'name': g.full_name} for g in groups],
             'companies': [{'id': c.id, 'name': c.name} for c in self.env.user.company_ids],
             'kinds': [{
                 'id': k.id, 'code': k.code, 'name': k.name, 'icon': k.icon or 'bell', 'push': k.push,
+                'description': k.description or '',
                 'active': k.active, 'roles': k.role_ids.ids, 'groups': k.recipient_group_ids.ids,
                 'users': k.recipient_ids.ids, 'muted': k.muted_user_ids.ids,
             } for k in kinds],
             'screens': [{
-                'id': s.id, 'key': s.key, 'name': s.name, 'icon': s.icon or 'box',
+                'id': s.id, 'key': s.key, 'name': s.name, 'icon': s.icon or 'box', 'description': s.description or '',
                 'open': not (s.group_ids or s.user_ids), 'roles': s.role_ids.ids, 'groups': s.group_ids.ids,
                 'users': s.user_ids.ids,
             } for s in screens],
@@ -250,6 +260,59 @@ class DonialinkAppAdmin(models.AbstractModel):
         screen = self.env['donialink.app.screen'].sudo().browse(int(screen_id)).exists()
         field = {'role': 'role_ids', 'group': 'group_ids', 'user': 'user_ids'}[self._target_field(target)]
         screen.write({field: [(4 if on else 3, int(target_id))]})
+        return True
+
+    # ------------------------------------------------------------------
+    # Roles (the simple way: one role, what it receives, sees, who is in it)
+    # ------------------------------------------------------------------
+
+    @api.model
+    def role_create(self, name, user_type='portal'):
+        self._check()
+        name = (name or '').strip()
+        if not name:
+            raise UserError(_('Give the role a name.'))
+        role = self.env['donialink.app.role'].create({
+            'name': name, 'user_type': user_type if user_type in ('portal', 'internal') else 'portal',
+            'company_ids': [(6, 0, self.env.companies.ids)]})
+        return {'id': role.id}
+
+    @api.model
+    def role_save(self, role_id, name=None, description=None, user_type=None, is_default=None):
+        self._check()
+        role = self.env['donialink.app.role'].browse(int(role_id)).exists()
+        vals = {}
+        if name is not None and name.strip():
+            vals['name'] = name.strip()
+        if description is not None:
+            vals['description'] = description.strip() or False
+        if user_type in ('portal', 'internal'):
+            vals['user_type'] = user_type
+        if is_default is not None:
+            if is_default:
+                self.env['donialink.app.role'].search([('is_default', '=', True)]).write({'is_default': False})
+            vals['is_default'] = bool(is_default)
+        role.write(vals)
+        return True
+
+    @api.model
+    def role_toggle(self, role_id, what, item_id, on):
+        """Tick or untick, for a role: a notification it receives (kind), a screen it sees, a person in it, or an
+        access group it gives (checked: nobody gives access they don't have)."""
+        self._check()
+        role = self.env['donialink.app.role'].browse(int(role_id)).exists()
+        field = {'kind': 'kind_ids', 'screen': 'screen_ids', 'user': 'user_ids', 'group': 'group_ids'}.get(what)
+        if not role or not field:
+            raise UserError(_('Unknown choice.'))
+        if what == 'user':
+            self._person(item_id, manage=True)
+        role.write({field: [(4 if on else 3, int(item_id))]})
+        return True
+
+    @api.model
+    def role_delete(self, role_id):
+        self._check()
+        self.env['donialink.app.role'].browse(int(role_id)).exists().unlink()
         return True
 
     # ------------------------------------------------------------------

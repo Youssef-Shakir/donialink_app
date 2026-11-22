@@ -188,28 +188,44 @@ class DonialinkAppTask(models.Model):
     # Notifications
     # ------------------------------------------------------------------
 
-    def _notify(self, kind, users, title=None, body=None):
+    def _notify(self, kind, users, overdue=False):
+        """The app message of ``kind`` to ``users``, each group in its own language and time zone (a tap opens the
+        task). Internal assignees also get it in Odoo's notifications."""
         self.ensure_one()
-        users = users.filtered('active')
-        if not users:
-            return self.env['donialink.app.message']
-        when = ''
-        if self.deadline:
-            when = fields.Datetime.context_timestamp(self, self.deadline).strftime('%Y-%m-%d %H:%M')
-        titles = {
-            'task_assigned': _('New task: %s', self.name),
-            'task_due': _('Task due: %s', self.name),
-            'task_done': _('Task done: %s', self.name),
-        }
-        lines = [self.description or '']
-        if when and kind != 'task_done':
-            lines.append(_('Due %s', when))
-        if kind == 'task_done':
-            lines = [_('%(who)s finished it.', who=self.done_by_id.name or ''), self.done_note or '']
-        return self.env['donialink.app.message'].sudo().send(
-            kind=kind, title=title or titles.get(kind, self.name), body=body or '\n'.join(filter(None, lines)),
-            users=users, company=self.company_id, url='#task-%s' % self.id, sender=self.creator_id.name,
-            origin='task', data={'task_id': self.id})
+        self = self.sudo()   # noqa: PLW0642 - reading the recipients' language and time zone (portal actors too)
+        users = users.sudo().filtered('active')
+        messages = self.env['donialink.app.message']
+        for lang in set(users.mapped(lambda u: u.lang or 'en_US')):
+            group = users.filtered(lambda u: (u.lang or 'en_US') == lang)
+            task = self.with_context(lang=lang, tz=group[:1].tz or self.env.user.tz or 'UTC')
+            env = task.env
+            if kind == 'task_assigned':
+                title = env._('New task: %s', task.name)
+            elif kind == 'task_done':
+                title = env._('Task done: %s', task.name)
+            else:
+                title = env._('Overdue: %s', task.name) if overdue else env._('Task due: %s', task.name)
+            if kind == 'task_done':
+                lines = [env._('%(who)s finished it.', who=task.done_by_id.name or ''), task.done_note or '']
+            else:
+                lines = [task.description or '']
+                if task.deadline:
+                    when = fields.Datetime.context_timestamp(task, task.deadline).strftime('%Y-%m-%d %H:%M')
+                    lines.append(env._('Due %s', when))
+                if task.line_ids:
+                    lines.append(env._('%s points to tick', len(task.line_ids)))
+            messages |= self.env['donialink.app.message'].sudo().with_context(lang=lang).send(
+                kind=kind, title=title, body='\n'.join(filter(None, lines)), users=group,
+                company=self.company_id, url='#task-%s' % self.id, sender=self.creator_id.name,
+                origin='task', data={'task_id': self.id})
+        if kind == 'task_assigned':
+            internal = users.filtered(lambda u: not u.share)
+            if internal:
+                self.sudo().message_notify(
+                    partner_ids=internal.partner_id.ids, subject=_('New task: %s', self.name),
+                    body=_('%(creator)s gave you a task: %(task)s', creator=self.creator_id.name or '',
+                           task=self.name), model_description=_('Task'))
+        return messages
 
     @api.model
     def _cron_reminders(self):
@@ -223,7 +239,7 @@ class DonialinkAppTask(models.Model):
         late = self.sudo().search([('state', 'in', ('todo', 'progress')), ('overdue_sent', '=', False),
                                    ('deadline', '<', now)])
         for task in late:
-            task._notify('task_due', task.user_ids | task.creator_id, title=_('Overdue: %s', task.name))
+            task._notify('task_due', task.user_ids | task.creator_id, overdue=True)
             task.overdue_sent = True
         # repeating tasks whose day is over without being done: the next one is created anyway
         for task in self.sudo().search([('repeat', '!=', 'none'), ('next_created', '=', False),

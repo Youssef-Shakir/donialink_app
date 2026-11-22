@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'DoniaLink App',
-    'version': '18.0.1.2.2',
+    'version': '18.0.1.3.0',
     'summary': 'One installable phone app (PWA) for the business: notifications, reports and screens added by '
                'other modules.',
     'description': """

@@ -17,3 +17,16 @@
     .o_dl_matrix th, .o_dl_matrix td { white-space: nowrap; }
 }
 @media (max-width: 767px) { .o_dl_admin { padding: 10px; } }
+
+.o_dl_admin {
+    .o_dl_roles { display: grid; grid-template-columns: 240px 1fr; gap: 16px; align-items: start; }
+    .o_dl_role_list { display: flex; flex-direction: column; gap: 6px; }
+    .o_dl_role_item { text-align: start; border: 1px solid var(--border-color, #dee2e6); border-radius: 10px; padding: 8px 12px; background: none; display: flex; flex-direction: column; }
+    .o_dl_role_item.active { border-color: #0e3f64; box-shadow: inset 3px 0 0 #0e3f64; }
+    .o_dl_role_new { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+    .o_dl_role_head { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .o_dl_role_cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+    .o_dl_check { display: flex; gap: 8px; align-items: flex-start; padding: 6px 0; border-bottom: 1px solid var(--border-color, #eee); cursor: pointer;
+        input { margin-top: 4px; } }
+}
+@media (max-width: 767px) { .o_dl_admin .o_dl_roles { grid-template-columns: 1fr; } }

@@ -21,11 +21,11 @@ export class DonialinkAppAdmin extends Component {
             data: null, tab: "people", editRoles: null, created: null, password: null,
             form: { name: "", login: "", password: "", roles: [], companies: [] },
             broadcast: { title: "", body: "", roles: [], groups: [], users: [] },
-            search: "",
+            search: "", roleId: null, newRole: "", newRoleType: "portal",
         });
         this.tabs = [
-            ["people", _t("People")], ["create", _t("New user")], ["receives", _t("Who receives what")],
-            ["sees", _t("Who sees what")], ["activity", _t("Activity")], ["broadcast", _t("Broadcast")],
+            ["people", _t("People")], ["create", _t("New user")], ["roles", _t("Roles")],
+            ["activity", _t("Activity")], ["broadcast", _t("Broadcast")], ["advanced", _t("Advanced")],
         ];
         onWillStart(() => this.load());
     }
@@ -43,6 +43,47 @@ export class DonialinkAppAdmin extends Component {
         this.state.data = await this.call("get_data");
         if (!this.state.form.companies.length && this.state.data.companies.length) {
             this.state.form.companies = [this.state.data.companies[0].id];
+        }
+    }
+
+    // ---------------------------------------------------------------- roles
+    get role() {
+        const roles = this.state.data.roles;
+        return roles.find((r) => r.id === this.state.roleId) || roles[0] || null;
+    }
+    selectRole(role) {
+        this.state.roleId = role.id;
+    }
+    async roleToggle(what, id, on) {
+        await this.call("role_toggle", this.role.id, what, id, on);
+        await this.load();
+    }
+    async roleAddFrom(ev, what) {
+        const id = parseInt(ev.target.value, 10);
+        ev.target.value = "";
+        if (id) {
+            await this.roleToggle(what, id, true);
+        }
+    }
+    async roleSave(field, value) {
+        await this.call("role_save", this.role.id, ...{
+            name: [value, null, null, null], description: [null, value, null, null],
+            type: [null, null, value, null], default: [null, null, null, value],
+        }[field]);
+        await this.load();
+    }
+    async createRole(ev) {
+        ev.preventDefault();
+        const r = await this.call("role_create", this.state.newRole, this.state.newRoleType);
+        this.state.newRole = "";
+        this.state.roleId = r.id;
+        await this.load();
+    }
+    async deleteRole() {
+        if (window.confirm(_t("Delete the role \"%s\"? The access it gave is taken back.", this.role.name))) {
+            await this.call("role_delete", this.role.id);
+            this.state.roleId = null;
+            await this.load();
         }
     }
 

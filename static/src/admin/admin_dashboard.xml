@@ -66,6 +66,7 @@
                                         </t>
                                         <t t-else="">
                                             <span t-foreach="p.roles" t-as="rid" t-key="rid" class="badge text-bg-light me-1" t-esc="roleName(rid)"/>
+                                            <span t-if="!p.roles.length" class="text-muted small">No role</span>
                                             <button class="btn btn-sm btn-link px-1" t-on-click="() => this.editRoles(p)">Change</button>
                                         </t>
                                     </td>
@@ -116,7 +117,8 @@
                 </section>
 
                 <!-- c: who receives what -->
-                <section t-if="state.tab === 'receives'" class="o_dl_panel table-responsive">
+                <section t-if="state.tab === 'advanced'" class="o_dl_panel table-responsive">
+                    <h3 class="h5">Who receives what</h3>
                     <table class="table table-sm align-middle o_dl_matrix">
                         <thead><tr><th>Notification</th><th t-foreach="d.roles" t-as="r" t-key="r.id" class="text-center" t-esc="r.name"/><th>Groups</th><th>People</th><th>Push</th><th/></tr></thead>
                         <tbody>
@@ -147,7 +149,8 @@
                 </section>
 
                 <!-- d: who sees what -->
-                <section t-if="state.tab === 'sees'" class="o_dl_panel table-responsive">
+                <section t-if="state.tab === 'advanced'" class="o_dl_panel table-responsive mt-4">
+                    <h3 class="h5">Who sees what</h3>
                     <p class="text-muted">A screen without groups or people is open to everyone; roles, groups and people open the others.</p>
                     <table class="table table-sm align-middle o_dl_matrix">
                         <thead><tr><th>Screen</th><th t-foreach="d.roles" t-as="r" t-key="r.id" class="text-center" t-esc="r.name"/><th>Groups</th><th>People</th></tr></thead>
@@ -176,6 +179,77 @@
                     </table>
                 </section>
 
+
+                <!-- roles: the simple way -->
+                <section t-if="state.tab === 'roles'" class="o_dl_panel o_dl_roles">
+                    <aside class="o_dl_role_list">
+                        <button t-foreach="d.roles" t-as="r" t-key="r.id" t-att-class="'o_dl_role_item' + (role and role.id === r.id ? ' active' : '')"
+                                t-on-click="() => this.selectRole(r)">
+                            <b t-esc="r.name"/>
+                            <span class="small text-muted"><t t-esc="r.count"/> people · <t t-esc="r.type === 'internal' ? 'Internal' : 'Portal (free)'"/></span>
+                        </button>
+                        <form class="o_dl_role_new" t-on-submit="createRole">
+                            <input class="form-control form-control-sm" placeholder="New role, e.g. Kitchen" required="1" t-model="state.newRole"/>
+                            <select class="form-select form-select-sm" t-model="state.newRoleType">
+                                <option value="portal">Portal (free, app only)</option>
+                                <option value="internal">Internal (also Odoo)</option>
+                            </select>
+                            <button class="btn btn-sm btn-secondary" type="submit">+ Add role</button>
+                        </form>
+                    </aside>
+                    <div t-if="role" class="o_dl_role_edit">
+                        <div class="o_dl_role_head">
+                            <input class="form-control form-control-lg fw-bold" t-att-value="role.name" t-on-change="(ev) => this.roleSave('name', ev.target.value)"/>
+                            <button class="btn btn-link text-danger" t-on-click="deleteRole">Delete</button>
+                        </div>
+                        <input class="form-control mb-2" placeholder="What is this role for?" t-att-value="role.description"
+                               t-on-change="(ev) => this.roleSave('description', ev.target.value)"/>
+                        <div class="d-flex gap-3 flex-wrap mb-3">
+                            <label><input type="radio" t-att-name="'type' + role.id" t-att-checked="role.type === 'portal'" t-on-change="() => this.roleSave('type', 'portal')"/> Portal: free, app only</label>
+                            <label><input type="radio" t-att-name="'type' + role.id" t-att-checked="role.type === 'internal'" t-on-change="() => this.roleSave('type', 'internal')"/> Internal: also uses Odoo</label>
+                            <label><input type="checkbox" t-att-checked="role.default" t-on-change="(ev) => this.roleSave('default', ev.target.checked)"/> Default for new people</label>
+                        </div>
+
+                        <div class="o_dl_role_cols">
+                            <div class="o_dl_card">
+                                <h3>People with this role</h3>
+                                <div class="mb-2">
+                                    <span t-foreach="role.users" t-as="uid" t-key="uid" class="badge text-bg-light me-1 mb-1 fs-6 fw-normal"><t t-esc="personName(uid)"/> <a href="#" title="Remove" t-on-click.prevent="() => this.roleToggle('user', uid, false)">×</a></span>
+                                    <span t-if="!role.users.length" class="text-muted">Nobody yet.</span>
+                                </div>
+                                <select class="form-select form-select-sm" t-on-change="(ev) => this.roleAddFrom(ev, 'user')">
+                                    <option value="">+ Add a person</option>
+                                    <t t-foreach="d.people" t-as="p" t-key="p.id"><option t-if="p.active and !role.users.includes(p.id)" t-att-value="p.id" t-esc="p.name"/></t>
+                                </select>
+                            </div>
+                            <div class="o_dl_card">
+                                <h3>Receives these notifications</h3>
+                                <label t-foreach="d.kinds" t-as="k" t-key="k.id" class="o_dl_check">
+                                    <input type="checkbox" t-att-checked="role.kinds.includes(k.id)" t-on-change="(ev) => this.roleToggle('kind', k.id, ev.target.checked)"/>
+                                    <span><b t-esc="k.name"/><small t-if="k.description" class="d-block text-muted" t-esc="k.description"/></span>
+                                </label>
+                            </div>
+                            <div class="o_dl_card">
+                                <h3>Sees these screens in the app</h3>
+                                <label t-foreach="d.screens" t-as="s" t-key="s.id" class="o_dl_check">
+                                    <t t-set="byAccess" t-value="role.screens_by_access.includes(s.id)"/>
+                                    <input type="checkbox" t-att-checked="s.open or byAccess or role.screens.includes(s.id)" t-att-disabled="s.open or byAccess"
+                                           t-on-change="(ev) => this.roleToggle('screen', s.id, ev.target.checked)"/>
+                                    <span><b t-esc="s.name"/><small class="d-block text-muted"><t t-if="s.open">Everyone sees it</t><t t-elif="byAccess">Comes with this role's access</t><t t-else="" t-esc="s.description"/></small></span>
+                                </label>
+                            </div>
+                        </div>
+                        <details class="o_dl_card mt-3">
+                            <summary><b>Advanced: Odoo access groups this role gives</b></summary>
+                            <p class="small text-muted mt-2">Added to the people of the role, taken back when they leave it. You can only give access you have.</p>
+                            <span t-foreach="role.groups" t-as="gid" t-key="gid" class="badge text-bg-light me-1 mb-1"><t t-esc="groupName(gid)"/> <a href="#" t-on-click.prevent="() => this.roleToggle('group', gid, false)">×</a></span>
+                            <select class="form-select form-select-sm mt-2" t-on-change="(ev) => this.roleAddFrom(ev, 'group')">
+                                <option value="">+ Add an access group</option>
+                                <t t-foreach="d.all_groups" t-as="g" t-key="g.id"><option t-if="!role.groups.includes(g.id)" t-att-value="g.id" t-esc="g.name"/></t>
+                            </select>
+                        </details>
+                    </div>
+                </section>
                 <!-- e: activity -->
                 <section t-if="state.tab === 'activity'" class="o_dl_panel">
                     <div class="o_dl_cards">

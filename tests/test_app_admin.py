@@ -157,3 +157,37 @@ class TestAppAdmin(TransactionCase):
         boss.set_roles(self.clerk.id, [admin_role.id])
         self.assertIn(system, self.clerk.groups_id)
         self.assertTrue(boss.reset_password(self.clerk.id)['password'])
+
+    def test_people_of_the_selected_companies(self):
+        other = self.env['res.company'].create({'name': 'DL Adm Branch'})
+        self.manager.company_ids |= other
+        far = new_test_user(self.env, 'dl_adm_far', groups='base.group_portal', company_id=other.id,
+                            company_ids=[(6, 0, other.ids)])
+        admin = self.Admin.with_user(self.manager)
+        main_only = admin.with_context(allowed_company_ids=[self.env.company.id]).get_data()
+        self.assertNotIn(far.id, [p['id'] for p in main_only['people']])
+        self.assertIn(self.staff.id, [p['id'] for p in main_only['people']])
+        branch = admin.with_context(allowed_company_ids=[other.id]).get_data()
+        self.assertIn(far.id, [p['id'] for p in branch['people']])
+        self.assertNotIn(self.staff.id, [p['id'] for p in branch['people']])
+
+    def test_roles_tab(self):
+        admin = self.Admin.with_user(self.manager)
+        role = self.Role.browse(admin.role_create('Kitchen', 'portal')['id'])
+        admin.role_save(role.id, description='Cooks and prep', is_default=True)
+        self.assertTrue(role.is_default)
+        self.assertFalse(self.env.ref('donialink_app.role_staff').is_default, 'one default role')
+        admin.role_toggle(role.id, 'kind', self.kind.id, True)
+        admin.role_toggle(role.id, 'user', self.staff.id, True)
+        admin.role_toggle(role.id, 'group', self.summary.id, True)
+        self.assertIn(self.staff, self.kind._recipients())
+        self.assertIn(self.summary, self.staff.groups_id, 'the role gives its group')
+        with self.assertRaises(AccessError):
+            admin.role_toggle(role.id, 'group', self.env.ref('base.group_system').id, True)
+        data = admin.get_data()
+        row = next(r for r in data['roles'] if r['id'] == role.id)
+        self.assertEqual((row['users'], row['kinds']), ([self.staff.id], [self.kind.id]))
+        admin.role_toggle(role.id, 'user', self.staff.id, False)
+        self.assertNotIn(self.summary, self.staff.groups_id, 'taken back')
+        admin.role_delete(role.id)
+        self.assertFalse(role.exists())

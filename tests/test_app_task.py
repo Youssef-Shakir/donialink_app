@@ -129,10 +129,14 @@ class TestAppTask(HttpCase):
         self.assertIn(created['id'], [t['id'] for t in team['tasks']])
 
     def test_dashboard_card(self):
-        self._task(deadline=fields.Datetime.now() - timedelta(hours=1))
         admin = new_test_user(self.env, 'dl_task_admin', groups='base.group_user,donialink_app.group_app_manager')
-        card = next(s for s in self.env['donialink.app.admin'].with_user(admin).get_data()['sections'] if s['key'] == 'tasks')
-        self.assertEqual(card['numbers'][1]['value'], 1, 'one overdue')
+        Admin = self.env['donialink.app.admin'].with_user(admin)
+
+        def overdue():
+            return next(s for s in Admin.get_data()['sections'] if s['key'] == 'tasks')['numbers'][1]['value']
+        before = overdue()
+        self._task(deadline=fields.Datetime.now() - timedelta(hours=1))
+        self.assertEqual(overdue(), before + 1, 'one more overdue')
 
     def test_assignee_can_not_edit_directly(self):
         """Assignees work through the actions only: no direct state, deadline, people or done_by changes."""
@@ -171,3 +175,18 @@ class TestAppTask(HttpCase):
         self.assertIn(task.id, [t['id'] for t in mine['tasks']])
         self.assertEqual(next(t for t in mine['tasks'] if t['id'] == task.id)['company'], 'DL Task Other Co')
         self.assertEqual(self.api('task', task_id=task.id)['task']['id'], task.id)
+
+    def test_assigned_notification_in_their_language(self):
+        """The new-task notification reaches each assignee in his language; internal ones also in Odoo."""
+        self.env['res.lang']._activate_lang('ar_001')
+        self.ali.lang = 'ar_001'
+        task = self.Task.with_user(self.boss).create({'name': 'Fryer', 'user_ids': [(6, 0, (self.ali | self.boss).ids)],
+                                                      'deadline': fields.Datetime.now() + timedelta(hours=5)})
+        arabic = self._messages('task_assigned', self.ali)
+        self.assertTrue(arabic.title.startswith('مهمة جديدة'), arabic.title)
+        self.assertEqual(arabic.url, '#task-%s' % task.id)
+        self.assertTrue(self._messages('task_assigned', self.boss).title.startswith('New task'))
+        notified = self.env['mail.message'].search([('model', '=', task._name), ('res_id', '=', task.id),
+                                                    ('message_type', '=', 'user_notification')])
+        self.assertIn(self.boss.partner_id, notified.partner_ids, 'the internal assignee is told in Odoo too')
+        self.assertNotIn(self.ali.partner_id, notified.partner_ids)
