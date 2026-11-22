@@ -190,3 +190,20 @@ class TestAppTask(HttpCase):
                                                     ('message_type', '=', 'user_notification')])
         self.assertIn(self.boss.partner_id, notified.partner_ids, 'the internal assignee is told in Odoo too')
         self.assertNotIn(self.ali.partner_id, notified.partner_ids)
+
+
+@tagged('post_install', '-at_install')
+class TestAppTaskCompany(HttpCase):
+
+    def test_task_goes_to_the_company_chosen_in_the_app(self):
+        branch = self.env['res.company'].create({'name': 'DL Task Branch'})
+        boss = new_test_user(self.env, 'dl_tc_boss', password='dl_tc_boss1',
+                             groups='base.group_user,donialink_app.group_task_manager',
+                             company_ids=[(6, 0, (self.env.company | branch).ids)])
+        self.authenticate('dl_tc_boss', 'dl_tc_boss1')
+        self.opener.cookies['cids'] = str(self.env.company.id)   # Odoo's own switcher on the main company
+        call = lambda endpoint, **p: self.url_open('/dl/app/api/%s' % endpoint, data=json.dumps({'params': p}),
+                                                    headers={'Content-Type': 'application/json'}).json()['result']
+        self.assertEqual(call('company_set', company_id=branch.id)['company_id'], branch.id)
+        result = call('task_create', name='Clean the fryer', user_ids=[boss.id])
+        self.assertEqual(self.env['donialink.app.task'].browse(result['task']['id']).company_id, branch, result)

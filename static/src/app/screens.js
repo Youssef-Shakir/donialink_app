@@ -37,7 +37,7 @@
             'Account': 'الحساب', 'App version {0}': 'إصدار التطبيق {0}',
             'Nothing to receive yet.': 'لا يوجد ما يصلك بعد.',
             'Powered by DoniaLink': 'بواسطة دنيا لينك',
-            'Notifications on this phone': 'الإشعارات على هذا الهاتف', 'Language': 'اللغة', 'Checking…': 'جارٍ التحقق…',
+            'Notifications on this phone': 'الإشعارات على هذا الهاتف', 'Company': 'الشركة', 'Language': 'اللغة', 'Checking…': 'جارٍ التحقق…',
             'Notifications are not ready: reload the app (it needs a secure https address).': 'الإشعارات غير جاهزة: أعد تحميل التطبيق (يحتاج عنواناً آمناً https).', 'Change password': 'تغيير كلمة المرور',
             'Current password': 'كلمة المرور الحالية', 'New password': 'كلمة المرور الجديدة',
             'New password again': 'أعد كلمة المرور الجديدة', 'The two new passwords are different.': 'كلمتا المرور الجديدتان غير متطابقتين.',
@@ -132,7 +132,7 @@
             el.append(h('header', { class: 'dl-hero' }, [
                 s.logo ? h('img', { class: 'dl-hero-logo', src: s.logo, alt: s.user.company }) : null,
                 h('div', { class: 'dl-hero-text' }, [
-                    h('span', { class: 'dl-hero-company' }, s.user.company),
+                app.companyPicker('dl-hero-company') || h('span', { class: 'dl-hero-company' }, s.user.company),
                     h('h1', {}, t('Hello, {0}', s.user.name.split(' ')[0])),
                 ]),
                 h('a', { class: 'dl-icon-btn dl-bell', href: '#inbox', 'aria-label': t('Notifications') }, [

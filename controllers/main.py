@@ -164,6 +164,11 @@ class DonialinkApp(http.Controller):
         method = getattr(self, '_api_%s' % action, None)
         if not method:
             return {'error': 'unknown_action'}
+        # the app works in the company chosen at its top (the person's current company), whatever Odoo's own
+        # company switcher (cids cookie) says: tasks and every record made here go to that company
+        user = request.env.user
+        if user.company_id:
+            request.update_context(allowed_company_ids=[user.company_id.id] + (user.company_ids - user.company_id).ids)
         try:
             return method(**params)
         except (AccessError, UserError) as e:
@@ -200,6 +205,10 @@ class DonialinkApp(http.Controller):
             'app_name': _app_name(),
             'version': _version(),
             'logo': APP + '/icon/192.png',
+            # the company everything in the app is recorded in (receipts, stocktakes, tasks...): the person's
+            # current company, chosen at the top of the app among their companies
+            'company_id': user.company_id.id,
+            'companies': [{'id': c.id, 'name': c.name} for c in user.company_ids.sorted('name')],
             'user': {'id': user.id, 'name': user.name, 'lang': user.lang or 'en_US',
                      'internal': user._is_internal(), 'company': user.company_id.name,
                      'avatar': '/web/image/res.users/%s/avatar_128' % user.id},
@@ -209,6 +218,15 @@ class DonialinkApp(http.Controller):
             'push_key': request.env['mail.push.device'].sudo().get_web_push_vapid_public_key(),
             'summary': request.env['donialink.app.summary']._info(user),
         }
+
+    def _api_company_set(self, company_id):
+        """Work in another of the person's companies: receipts, stocktakes, tasks... are recorded in it."""
+        user = request.env.user
+        company = user.company_ids.filtered(lambda c: c.id == int(company_id or 0))
+        if not company:
+            raise AccessError(_('You do not have access to this company.'))
+        user.sudo().company_id = company
+        return {'company_id': company.id}
 
     def _api_lang_set(self, lang):
         """The person's language (the app, its notifications and Odoo follow it): Arabic or English."""

@@ -163,8 +163,30 @@
                 back ? app.h('button', { class: 'dl-icon-btn', 'aria-label': app.t('Back'),
                     onclick: () => (history.length > 1 ? history.back() : app.go('')) }, app.icon('back', 'dl-flip')) : null,
                 app.h('h1', {}, title),
+                app.companyPicker('dl-topbar-company'),
             ]);
             return bar;
+        },
+        /** The company the app works in (everything is recorded there); a select when the person has several. */
+        companyPicker(cls) {
+            const s = app.session || {};
+            const companies = s.companies || [];
+            if (companies.length < 2) {
+                return null;
+            }
+            const select = app.h('select', { class: 'dl-company-select ' + (cls || ''), 'aria-label': app.t('Company'),
+                onchange: () => app.setCompany(parseInt(select.value, 10)) },
+            companies.map((c) => app.h('option', { value: String(c.id), selected: c.id === s.company_id }, c.name)));
+            return select;
+        },
+        async setCompany(companyId) {
+            try {
+                await app.rpc('company_set', { company_id: companyId });
+                try { localStorage.setItem('dl-company', String(companyId)); } catch (e) { /* ignore */ }
+                window.location.reload();
+            } catch (e) {
+                app.toast(e.message, 'bad');
+            }
         },
 
         // -------------------------------------------------- screens and navigation

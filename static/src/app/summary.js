@@ -57,8 +57,9 @@
         if (saved === 'all' && s.companies.length > 1) {
             return s.companies;
         }
-        const found = s.companies.find((c) => String(c.id) === saved);
-        return [found || s.companies.find((c) => c.id === s.default_company) || s.companies[0]];
+        // otherwise the company chosen at the top of the app
+        const current = s.companies.find((c) => c.id === app.session.company_id);
+        return [current || s.companies.find((c) => c.id === s.default_company) || s.companies[0]];
     }
 
     function money(value, currency) {
@@ -197,8 +198,11 @@
         }
         const chosen = chosenCompanies();
         const select = h('select', { class: 'dl-select', 'aria-label': t('Company'), onchange: () => {
-            store('dl-company', select.value);
-            onChange();
+            if (select.value === 'all') {
+                store('dl-company', 'all');
+                return onChange();
+            }
+            app.setCompany(parseInt(select.value, 10));   // one company: the whole app moves to it
         } }, [
             h('option', { value: 'all', selected: chosen.length > 1 }, t('All companies')),
             ...s.companies.map((c) => h('option', { value: String(c.id), selected: chosen.length === 1 && chosen[0].id === c.id }, c.name)),
@@ -292,7 +296,6 @@
             const companies = chosenCompanies();
             const head = h('div', { class: 'dl-summary-head' }, [
                 h('h2', {}, companies.length > 1 ? t('Your companies') : t('Business summary')),
-                companyPicker(draw),
             ]);
             wrap.replaceChildren(head, ...companies.map((c) => glanceCard(c, companies.length === 1)));
         }
